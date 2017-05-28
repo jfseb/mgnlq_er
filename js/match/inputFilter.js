@@ -20,7 +20,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var distance = require("abot_stringdist");
 //import * as Logger from '../utils/logger';
 //const logger = Logger.logger('inputFilter');
-var debug = require("debug");
+var debug = require("debugf");
 var debugperf = debug('perf');
 var logger = debug('inputFilterLogger');
 var mgnlq_model_1 = require("mgnlq_model");
@@ -143,6 +143,74 @@ function sortByRank(a, b) {
     }
     return 0;
 }
+function cmpByRank(a, b) {
+    return sortByRank(a, b);
+}
+function sortByRankThenResult(a, b) {
+    var r = -((a._ranking || 1.0) - (b._ranking || 1.0));
+    if (r) {
+        return r;
+    }
+    if (a.category && b.category) {
+        r = a.category.localeCompare(b.category);
+        if (r) {
+            return r;
+        }
+    }
+    if (a.matchedString && b.matchedString) {
+        r = a.matchedString.localeCompare(b.matchedString);
+        if (r) {
+            return r;
+        }
+    }
+    r = cmpByResultThenRank(a, b);
+    if (r) {
+        return r;
+    }
+    return 0;
+}
+function cmpByResult(a, b) {
+    if (a.rule === b.rule) {
+        return 0;
+    }
+    var r = a.rule.bitindex - b.rule.bitindex;
+    if (r) {
+        return r;
+    }
+    if (a.rule.matchedString && b.rule.matchedString) {
+        r = a.rule.matchedString.localeCompare(b.rule.matchedString);
+        if (r) {
+            return r;
+        }
+    }
+    if (a.rule.category && b.rule.category) {
+        r = a.rule.category.localeCompare(b.rule.category);
+        if (r) {
+            return r;
+        }
+    }
+    if (a.rule.wordType && b.rule.wordType) {
+        r = a.rule.wordType.localeCompare(b.rule.wordType);
+        if (r) {
+            return r;
+        }
+    }
+    return 0;
+}
+exports.cmpByResult = cmpByResult;
+function cmpByResultThenRank(a, b) {
+    var r = cmpByResult(a, b);
+    if (r) {
+        return r;
+    }
+    var r = -((a._ranking || 1.0) - (b._ranking || 1.0));
+    if (r) {
+        return r;
+    }
+    // TODO consider a tiebreaker here
+    return 0;
+}
+exports.cmpByResultThenRank = cmpByResultThenRank;
 function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
     if (debuglogV.enabled) {
         debuglogV('attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
@@ -262,9 +330,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
                         _ranking: (oRule._ranking || 1.0) * levenPenalty(levenmatch),
                         levenmatch: levenmatch
                     };
-                    if (debuglog) {
-                        debuglog("\n!CORO: fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  \"" + string + "\"=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category);
-                    }
+                    debuglog(function () { return "\n!CORO: fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  \"" + string + "\"=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category + "/" + oRule.bitindex; });
                     res.push(rec);
                 }
             }
@@ -299,9 +365,7 @@ function addCntRec(cntRec, member, number) {
 }
 function categorizeString(word, exact, oRules, cntRec) {
     // simply apply all rules
-    if (debuglogM.enabled) {
-        debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
-    }
+    debuglogV(function () { return "rules : " + JSON.stringify(oRules, undefined, 2); });
     var lcString = word.toLowerCase();
     var res = [];
     oRules.forEach(function (oRule) {
@@ -313,9 +377,7 @@ function categorizeString(word, exact, oRules, cntRec) {
 exports.categorizeString = categorizeString;
 function categorizeSingleWordWithOffset(word, lcword, exact, oRules, cntRec) {
     // simply apply all rules
-    if (debuglogV.enabled) {
-        debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
-    }
+    debuglogV(function () { return "rules : " + JSON.stringify(oRules, undefined, 2); });
     var res = [];
     oRules.forEach(function (oRule) {
         checkOneRuleWithOffset(word, lcword, exact, res, oRule, cntRec);
@@ -345,6 +407,7 @@ function postFilter(res) {
         var delta = bestRank / resx._ranking;
         if ((resx.matchedString === res[index - 1].matchedString)
             && (resx.category === res[index - 1].category)) {
+            console.log('postfilter ignoring bitinidex!!!');
             return false;
         }
         //console.log("\n delta for " + delta + "  " + resx._ranking);
@@ -359,7 +422,27 @@ function postFilter(res) {
     return r;
 }
 exports.postFilter = postFilter;
+function dropLowerRankedEqualResult(res) {
+    res.sort(cmpByResultThenRank);
+    return res.filter(function (resx, index) {
+        var prior = res[index - 1];
+        if (prior &&
+            !(resx.rule && resx.rule.range)
+            && !(res[index - 1].rule && res[index - 1].rule.range)
+            && (resx.matchedString === prior.matchedString)
+            && (resx.rule.bitindex === prior.rule.bitindex)
+            && (resx.rule.wordType === prior.rule.wordType)
+            && (resx.category === res[index - 1].category)) {
+            return false;
+        }
+        return true;
+    });
+}
+exports.dropLowerRankedEqualResult = dropLowerRankedEqualResult;
 function postFilterWithOffset(res) {
+    // for filtering, we need to get *equal rule results close together
+    // =>
+    //
     res.sort(sortByRank);
     var bestRank = 0;
     //console.log("\npiltered " + JSON.stringify(res));
@@ -392,6 +475,8 @@ function postFilterWithOffset(res) {
         }
         return true;
     });
+    r = dropLowerRankedEqualResult(res);
+    r.sort(sortByRankThenResult);
     if (debuglog.enabled) {
         debuglog("\nfiltered " + r.length + "/" + res.length + JSON.stringify(r));
     }
@@ -455,13 +540,13 @@ function categorizeWordInternalWithOffsets(word, lcword, exact, rules, cntRec) {
             checkOneRuleWithOffset(word, lcword, exact, res, oRule, cntRec);
         });
         res = postFilterWithOffset(res);
-        debuglog("here results for" + word + " res " + res.length);
-        debuglogM("here results for" + word + " res " + res.length);
+        debuglog(function () { return "here results exact for " + word + " res " + res.length; });
+        debuglogM(function () { return "here results exact for " + word + " res " + res.length; });
         res.sort(sortByRank);
         return res;
     }
     else {
-        debuglog("categorize non exact" + word + " xx  " + rules.allRules.length);
+        debuglog("categorize non exact \"" + word + "\"    " + rules.allRules.length);
         var rr = categorizeSingleWordWithOffset(word, lcword, exact, rules.allRules, cntRec);
         //debulogM("fuzzy res " + JSON.stringify(rr));
         return postFilterWithOffset(rr);

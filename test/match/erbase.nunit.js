@@ -27,9 +27,22 @@ var mongoose = require('mongoose_record_replay').instrumentMongoose(require('mon
   'node_modules/mgnlq_testmodel_replay/mgrecrep/',
   'REPLAY');
 
-var ee = require('events');
+
+function getRules() {
+  return Model.loadModelsOpeningConnection(mongoose).then(
+      (model) => {
+        return Promise.resolve([model.rules, model.mongoHandle.mongoose]);
+      }
+    )
+}
+
+function releaseRules(mongoose) {
+  MongoUtils.disconnect(mongoose);
+}
+
 
 process.on('unhandledRejection', function onError(err) {
+  console.log('erbase.nunit.js');
   console.log(err);
   console.log(err.stack);
   throw err;
@@ -198,17 +211,6 @@ function simplifySentence(res) {
 }
 
 
-function getRules() {
-  return Model.loadModelHandleP(mongoose).then(
-      (modelHandle) => {
-        return Promise.resolve([modelHandle.model.rules, modelHandle.mongoose]);
-      }
-    )
-}
-
-function releaseRules(mongoose) {
-  MongoUtils.disconnect(mongoose);
-}
 
 var getRules2 = getRules;
 var getRulesX = getRules;
@@ -295,6 +297,57 @@ exports.testProcessStringelementNames = function (test) {
    releaseRules(mongoose);
   });
 };
+
+
+
+exports.testProcessStringCatQuery1 = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+    getRules().then( (args) => { var [rules,mongoose] = args;
+
+   var s = 'ApplicationComponent with ApplicaitonComponent W0052';
+  var res = Erbase.processString(s, rules, words);
+  debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+  test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+  [ [ 'ApplicationComponent=>ApplicationComponent/category C2',
+    'with=>with/filler I256',
+    'ApplicaitonComponent=>ApplicationComponent/category C2',
+    'W0052=>W0052/appId F2' ] ],
+    ' correct result ');
+  test.done();
+   releaseRules(mongoose);
+  });
+};
+
+
+
+exports.testProcessStringCatQuery = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+    getRules().then( (args) => { var [rules,mongoose] = args;
+
+   var s = 'SemanticObject, SemanticAction, BSPName, ApplicationComponent with ApplicaitonComponent CO-FIO,  appId W0052,SAP_TC_FIN_CO_COMMON';
+  var res = Erbase.processString(s, rules, words);
+  debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+  test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+ [ [ 'SemanticObject=>SemanticObject/category C2',
+    'SemanticAction=>SemanticAction/category C2',
+    'BSPName=>BSPName/category C2',
+    'ApplicationComponent=>ApplicationComponent/category C2',
+    'with=>with/filler I256',
+    'ApplicaitonComponent=>ApplicationComponent/category C2',
+    'CO-FIO=>CO-FIO/ApplicationComponent F2',
+    'appId=>appId/category C2',
+    'W0052=>W0052/appId F2',
+    'SAP_TC_FIN_CO_COMMON=>SAP_TC_FIN_CO_COMMON/TechnicalCatalog F2' ] ],
+    ' correct result ');
+  test.done();
+   releaseRules(mongoose);
+  });
+};
+
 
 exports.testTokenizeStringStartingWith = function (test) {
   // debuglog(JSON.stringify(ifr, undefined, 2))
@@ -396,19 +449,19 @@ exports.testProcessStringSameDistinct = function (test) {
   debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
   test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-  [ [ 'element name=>element name/category/2 C8',
+ [ [ 'element name=>element name/category/2 C8',
     'with=>with/filler I256',
     'element name=>element name/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element name=>element name/category/2 C32',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 C32',
     'starting with=>starting with/operator/2 O256',
     'ABC=>ABC/any A4096' ],
   [ 'element name=>element name/category/2 F16',
     'with=>with/filler I256',
     'element name=>element name/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element name=>element name/category/2 C32',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 C32',
     'starting with=>starting with/operator/2 O256',
     'ABC=>ABC/any A4096' ],
   [ 'element name=>element number/category/2 C8',

@@ -21,7 +21,7 @@ import * as distance from 'abot_stringdist';
 
 //const logger = Logger.logger('inputFilter');
 
-import * as debug from 'debug';
+import * as debug from 'debugf';
 var debugperf = debug('perf');
 var logger = debug('inputFilterLogger');
 
@@ -214,6 +214,81 @@ function sortByRank(a: IFMatch.ICategorizedString, b: IFMatch.ICategorizedString
   return 0;
 }
 
+function cmpByRank(a: IFMatch.ICategorizedString, b: IFMatch.ICategorizedString): number {
+  return sortByRank(a,b);
+}
+
+
+function sortByRankThenResult(a: IFMatch.ICategorizedStringRanged, b: IFMatch.ICategorizedStringRanged): number {
+  var r = -((a._ranking || 1.0) - (b._ranking || 1.0));
+  if (r) {
+    return r;
+  }
+  if (a.category && b.category) {
+    r = a.category.localeCompare(b.category);
+    if (r) {
+      return r;
+    }
+  }
+  if (a.matchedString && b.matchedString) {
+    r = a.matchedString.localeCompare(b.matchedString);
+    if (r) {
+      return r;
+    }
+  }
+  r = cmpByResultThenRank(a,b);
+  if(r) {
+    return r;
+  }
+  return 0;
+}
+
+
+export function cmpByResult(a: IFMatch.ICategorizedStringRanged, b: IFMatch.ICategorizedStringRanged): number {
+  if(a.rule === b.rule) {
+    return 0;
+  }
+  var r = a.rule.bitindex - b.rule.bitindex;
+  if(r) {
+    return r;
+  }
+  if (a.rule.matchedString && b.rule.matchedString) {
+    r = a.rule.matchedString.localeCompare(b.rule.matchedString);
+    if (r) {
+      return r;
+    }
+  }
+  if (a.rule.category && b.rule.category) {
+    r = a.rule.category.localeCompare(b.rule.category);
+    if (r) {
+      return r;
+    }
+  }
+  if (a.rule.wordType && b.rule.wordType) {
+    r = a.rule.wordType.localeCompare(b.rule.wordType);
+    if (r) {
+      return r;
+    }
+  }
+  return 0;
+}
+
+
+export function cmpByResultThenRank(a: IFMatch.ICategorizedStringRanged, b: IFMatch.ICategorizedStringRanged): number {
+  var r = cmpByResult(a,b);
+  if (r) {
+    return r;
+  }
+  var r = -((a._ranking || 1.0) - (b._ranking || 1.0));
+  if (r) {
+    return r;
+  }
+  // TODO consider a tiebreaker here
+  return 0;
+}
+
+
+
 
 export function checkOneRule(string: string, lcString : string, exact : boolean,
 res : Array<IFMatch.ICategorizedString>,
@@ -339,9 +414,7 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
               _ranking: (oRule._ranking || 1.0) * levenPenalty(levenmatch),
               levenmatch: levenmatch
             };
-            if(debuglog) {
-              debuglog("\n!CORO: fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  \"" + string + "\"="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
-            }
+            debuglog(() =>"\n!CORO: fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  \"" + string + "\"="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category + "/" + oRule.bitindex);
             res.push(rec);
           }
         }
@@ -378,9 +451,8 @@ function addCntRec(cntRec : ICntRec, member : string, number : number) {
 export function categorizeString(word: string, exact: boolean, oRules: Array<IFModel.mRule>,
  cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
   // simply apply all rules
-  if(debuglogM.enabled )  {
-    debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
-  }
+  debuglogV(() => "rules : " + JSON.stringify(oRules, undefined, 2));
+
   var lcString = word.toLowerCase();
   var res: Array<IFMatch.ICategorizedString> = []
   oRules.forEach(function (oRule) {
@@ -395,9 +467,7 @@ export function categorizeString(word: string, exact: boolean, oRules: Array<IFM
 export function categorizeSingleWordWithOffset(word: string, lcword : string, exact: boolean, oRules: Array<IFModel.mRule>,
  cntRec? : ICntRec): Array<IFMatch.ICategorizedStringRanged> {
   // simply apply all rules
-  if(debuglogV.enabled )  {
-    debuglogV("rules : " + JSON.stringify(oRules, undefined, 2));
-  }
+  debuglogV(()=> "rules : " + JSON.stringify(oRules, undefined, 2));
   var res: Array<IMatch.ICategorizedStringRanged> = []
   oRules.forEach(function (oRule) {
     checkOneRuleWithOffset(word,lcword,exact,res,oRule,cntRec);
@@ -427,7 +497,9 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
     // 1/7
     var delta = bestRank / resx._ranking;
     if((resx.matchedString === res[index-1].matchedString)
-      && (resx.category === res[index-1].category)) {
+      && (resx.category === res[index-1].category)
+      ) {
+        console.log('postfilter ignoring bitinidex!!!');
       return false;
     }
     //console.log("\n delta for " + delta + "  " + resx._ranking);
@@ -442,7 +514,30 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
   return r;
 }
 
+
+export function dropLowerRankedEqualResult(res : Array<IFMatch.ICategorizedStringRanged>) : Array<IFMatch.ICategorizedStringRanged> {
+  res.sort(cmpByResultThenRank);
+  return res.filter(function(resx,index) {
+    var prior = res[index-1];
+    if( prior &&
+        !(resx.rule && resx.rule.range)
+     && !(res[index-1].rule && res[index-1].rule.range)
+     && (resx.matchedString === prior.matchedString)
+     && (resx.rule.bitindex === prior.rule.bitindex)
+     && (resx.rule.wordType === prior.rule.wordType)
+     && (resx.category === res[index-1].category)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+
 export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRanged>) : Array<IFMatch.ICategorizedStringRanged> {
+  // for filtering, we need to get *equal rule results close together
+  // =>
+  //
+
   res.sort(sortByRank);
   var bestRank = 0;
   //console.log("\npiltered " + JSON.stringify(res));
@@ -476,6 +571,9 @@ export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRange
     }
     return true;
   });
+  r = dropLowerRankedEqualResult(res);
+  r.sort(sortByRankThenResult);
+
   if(debuglog.enabled) {
       debuglog(`\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
   }
@@ -544,12 +642,12 @@ export function categorizeWordInternalWithOffsets(word: string, lcword : string,
       checkOneRuleWithOffset(word,lcword, exact,res,oRule,cntRec);
     });
     res = postFilterWithOffset(res);
-    debuglog("here results for" + word + " res " + res.length);
-    debuglogM("here results for" + word + " res " + res.length);
+    debuglog(()=>"here results exact for " + word + " res " + res.length);
+    debuglogM(()=>"here results exact for " + word + " res " + res.length);
     res.sort(sortByRank);
     return res;
   } else {
-    debuglog("categorize non exact" + word + " xx  " + rules.allRules.length);
+    debuglog("categorize non exact \"" + word + "\"    " + rules.allRules.length);
     var rr = categorizeSingleWordWithOffset(word,lcword, exact, rules.allRules, cntRec);
     //debulogM("fuzzy res " + JSON.stringify(rr));
     return postFilterWithOffset(rr);

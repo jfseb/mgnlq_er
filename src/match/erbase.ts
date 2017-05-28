@@ -11,7 +11,7 @@
 
 import * as WordMatch from './inputFilter';
 
-import * as debug from 'debug';
+import * as debug from 'debugf';
 
 
 
@@ -530,7 +530,7 @@ export function processString2(query: string, rules: IFModel.SplitRules,
 
   aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
   if (debuglog.enabled) {
-    debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {
+    debuglog(()=> "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
       return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
     }).join("\n"));
   }

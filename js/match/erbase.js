@@ -10,7 +10,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 var WordMatch = require("./inputFilter");
-var debug = require("debug");
+var debug = require("debugf");
 var debuglog = debug('erbase');
 var debuglogV = debug('erbase');
 var perflog = debug('perf');
@@ -372,27 +372,30 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
 exports.expandTokenMatchesToSentences2 = expandTokenMatchesToSentences2;
 function processString(query, rules, words) {
     words = words || {};
-    if (!process.env.ABOT_NO_TEST1) {
-        return processString2(query, rules, words);
-    }
+    //if(!process.env.ABOT_NO_TEST1) {
+    return processString2(query, rules, words);
+    //}
+    /*
     var tokenStruct = tokenizeString(query, rules, words);
-    evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable, tokenStruct.categorizedWords);
+    evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable,
+      tokenStruct.categorizedWords);
     if (debuglog.enabled) {
-        debuglog("After matched " + JSON.stringify(tokenStruct.categorizedWords));
+      debuglog("After matched " + JSON.stringify(tokenStruct.categorizedWords));
     }
     var aSentences = expandTokenMatchesToSentences(tokenStruct.tokens, tokenStruct.categorizedWords);
     if (debuglog.enabled) {
-        debuglog("after expand" + aSentences.sentences.map(function (oSentence) {
-            return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
-        }).join("\n"));
+      debuglog("after expand" + aSentences.sentences.map(function (oSentence) {
+      return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
+      }).join("\n"));
     }
     aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
     if (debuglog.enabled) {
-        debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {
-            return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
-        }).join("\n"));
+      debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {
+        return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
+      }).join("\n"));
     }
     return aSentences;
+    */
 }
 exports.processString = processString;
 /**
@@ -460,9 +463,9 @@ function processString2(query, rules, words) {
     var aSentences = filterNonSameInterpretations(aSentences);
     aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
     if (debuglog.enabled) {
-        debuglog("after reinforce" + aSentences.sentences.map(function (oSentence) {
+        debuglog(function () { return "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
             return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
-        }).join("\n"));
+        }).join("\n"); });
     }
     return aSentences;
 }

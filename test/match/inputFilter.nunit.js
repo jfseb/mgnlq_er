@@ -1263,9 +1263,9 @@ var mongoose = require('mongoose_record_replay').instrumentMongoose(require('mon
   'REPLAY');
 
 function getRules() {
-  return Model.loadModelHandleP(mongoose).then(
-      (modelHandle) => {
-        return Promise.resolve([modelHandle.model.rules, modelHandle.mongoose]);
+  return Model.loadModelsOpeningConnection(mongoose).then(
+      (model) => {
+        return Promise.resolve([model.rules, model.mongoHandle.mongoose]);
       }
     )
 }
@@ -1329,6 +1329,100 @@ exports.testCategorizeAWordWithOffest = function (test) {
     });
 };
 
+
+
+process.on('unhandledRejection', function onError(err) {
+  console.log('erbase.nunit.js');
+  console.log(err);
+  console.log(err.stack);
+  throw err;
+});
+
+exports.testcompByEqualResultThenRank = function(test) {
+  var tobecompared = [
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","lowercaseword":"applicationcomponent","bitindex":2,"wordType":"C","bitSentenceAnd":2,"_ranking":0.95},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","lowercaseword":"applicationcomponent","bitindex":4,"wordType":"C","bitSentenceAnd":4,"_ranking":0.95},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","bitindex":16,"bitSentenceAnd":16,"exactOnly":false,"wordType":"F","_ranking":0.95,"lowercaseword":"applicationcomponent"},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"Application Component","bitindex":2,"bitSentenceAnd":2,"wordType":"C","_ranking":0.95,"lowercaseword":"application component"},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9314523809523809,"levenmatch":0.9804761904761905}];
+  test.equal(inputFilter.cmpByResultThenRank(tobecompared[0],tobecompared[0]),0);
+  test.equal(inputFilter.cmpByResultThenRank(tobecompared[0],tobecompared[1]),-2, ' compare 0 and 1');
+  test.equal(inputFilter.cmpByResult(tobecompared[0],tobecompared[3]),0);
+  test.equal(inputFilter.cmpByResultThenRank(tobecompared[0],tobecompared[3]) < 0, true, ' compare 0 3 full');
+  test.done();
+}
+
+
+
+exports.testdropLowerRankedEqualResult = function(test) {
+  var tobefiltered = [
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","lowercaseword":"applicationcomponent","bitindex":2,"wordType":"C","bitSentenceAnd":2,"_ranking":0.95},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","lowercaseword":"applicationcomponent","bitindex":4,"wordType":"C","bitSentenceAnd":4,"_ranking":0.95},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"ApplicationComponent","bitindex":16,"bitSentenceAnd":16,"exactOnly":false,"wordType":"F","_ranking":0.95,"lowercaseword":"applicationcomponent"},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9405,"levenmatch":0.99},
+    {"string":"ApplicaitonComponent","rule":{"category":"category","matchedString":"ApplicationComponent","type":0,"word":"Application Component","bitindex":2,"bitSentenceAnd":2,"wordType":"C","_ranking":0.95,"lowercaseword":"application component"},"matchedString":"ApplicationComponent","category":"category","_ranking":0.9314523809523809,"levenmatch":0.9804761904761905}];
+    var dropped = tobefiltered[3]._ranking;
+  test.equal(tobefiltered.filter(el => { return el._ranking === dropped}).length, 1, ' still present');
+  var res = inputFilter.dropLowerRankedEqualResult(tobefiltered);
+  test.equal(res.length + 1, tobefiltered.length, 'correct length');
+  test.equal(res.filter(el => { el._ranking === dropped}).length, 0, 'now gone');
+  test.done();
+}
+
+
+
+exports.testCategorizeAWordWithOffsetCloseBoth = function (test) {
+    getRules().then( (args) => { var [rules,mongoose] = args;
+      // note the typo !
+ var res = inputFilter.categorizeAWordWithOffsets('ApplicaitonComponent', rules,  'not relevant', {}, {});
+  test.deepEqual(res, [ { string: 'ApplicaitonComponent',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       lowercaseword: 'applicationcomponent',
+       bitindex: 2,
+       wordType: 'C',
+       bitSentenceAnd: 2,
+       _ranking: 0.95 },
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    _ranking: 0.9405,
+    levenmatch: 0.99 },
+  { string: 'ApplicaitonComponent',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       lowercaseword: 'applicationcomponent',
+       bitindex: 4,
+       wordType: 'C',
+       bitSentenceAnd: 4,
+       _ranking: 0.95 },
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    _ranking: 0.9405,
+    levenmatch: 0.99 },
+  { string: 'ApplicaitonComponent',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       bitindex: 16,
+       bitSentenceAnd: 16,
+       exactOnly: false,
+       wordType: 'F',
+       _ranking: 0.95,
+       lowercaseword: 'applicationcomponent' },
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    _ranking: 0.9405,
+    levenmatch: 0.99 } ]);
+  test.done();
+  releaseRules(mongoose);
+    });
+};
 
 
 exports.testCategorizeStringDistanceNavTargetInBetween = function (test) {
