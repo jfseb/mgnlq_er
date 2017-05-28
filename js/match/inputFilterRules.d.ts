@@ -1,0 +1,11 @@
+import * as IMatch from './iferbase';
+import { IFModel as IFModel } from 'mgnlq_model';
+export declare const oKeyOrder: Array<String>;
+export declare function compareMRuleFull(a: IFModel.mRule, b: IFModel.mRule): number;
+export declare function cmpMRule(a: IFModel.mRule, b: IFModel.mRule): number;
+export declare function getIntMRulesSample(): Array<IFModel.mRule>;
+export declare function getMRulesSample(): IMatch.SplitRules;
+export declare function assureLowerCaseWord(mRules: Array<IFModel.mRule>): IFModel.mRule[];
+export declare function getUnitTestUrl(string: string): any;
+export declare function getWikiUrl(string: string): any;
+export declare function getMRulesFull(): IMatch.SplitRules;
