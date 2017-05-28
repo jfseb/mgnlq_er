@@ -433,9 +433,10 @@ export function processString(query: string, rules: IFModel.SplitRules,
  words: { [key: string]: Array<IMatch.ICategorizedString> }
 ):  IMatch.IProcessedSentences {
   words = words || {};
-  if(!process.env.ABOT_NO_TEST1) {
-    return processString2(query, rules, words);
-  }
+  //if(!process.env.ABOT_NO_TEST1) {
+  return processString2(query, rules, words);
+  //}
+  /*
   var tokenStruct = tokenizeString(query, rules, words);
   evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable,
     tokenStruct.categorizedWords);
@@ -455,6 +456,7 @@ export function processString(query: string, rules: IFModel.SplitRules,
     }).join("\n"));
   }
   return aSentences;
+  */
 }
 
 /**
