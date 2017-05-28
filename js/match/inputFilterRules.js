@@ -1,45 +1,46 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mgnlq_model_1 = require("mgnlq_model");
-var mgnlq_Model_1 = require("mgnlq_Model");
+var mgnlq_model_2 = require("mgnlq_model");
 exports.oKeyOrder = ["systemObjectCategory", "systemId", "systemObjectId"];
 var mUnitTestURLMap = {};
 var aregex = /\/([^/]*).qunit.html/;
 var mRuleArray;
-function compareMRuleFull(a, b) {
-    var r = a.category.localeCompare(b.category);
+/*
+export function compareMRuleFull(a: IFModel.mRule, b: IFModel.mRule) {
+  var r = a.category.localeCompare(b.category);
+  if (r) {
+    return r;
+  }
+  r = a.type - b.type;
+  if (r) {
+    return r;
+  }
+  if (a.matchedString && b.matchedString) {
+    r = a.matchedString.localeCompare(b.matchedString);
     if (r) {
-        return r;
+      return r;
     }
-    r = a.type - b.type;
-    if (r) {
-        return r;
+  }
+  if (a.word && b.word) {
+    var r = a.word.localeCompare(b.word);
+    if(r) {
+      return r;
     }
-    if (a.matchedString && b.matchedString) {
-        r = a.matchedString.localeCompare(b.matchedString);
-        if (r) {
-            return r;
-        }
-    }
-    if (a.word && b.word) {
-        var r = a.word.localeCompare(b.word);
-        if (r) {
-            return r;
-        }
-    }
-    r = (a._ranking || 1.0) - (b._ranking || 1.0);
-    if (r) {
-        return r;
-    }
-    if (a.exactOnly && !b.exactOnly) {
-        return -1;
-    }
-    if (b.exactOnly && !a.exactOnly) {
-        return +1;
-    }
-    return 0;
+  }
+  r = (a._ranking || 1.0) - (b._ranking || 1.0);
+  if(r) {
+    return r;
+  }
+  if(a.exactOnly && !b.exactOnly) {
+    return -1;
+  }
+  if(b.exactOnly && !a.exactOnly) {
+    return +1;
+  }
+  return 0;
 }
-exports.compareMRuleFull = compareMRuleFull;
+*/
 function cmpMRule(a, b) {
     var r = a.category.localeCompare(b.category);
     if (r) {
@@ -58,9 +59,9 @@ function cmpMRule(a, b) {
     if (a.word && b.word) {
         return a.word.localeCompare(b.word);
         /*
-        if(r) {
-          return r;
-        }*/
+            if(r) {
+              return r;
+        */
     }
     r = (a._ranking || 1.0) - (b._ranking || 1.0);
     if (r) {
@@ -312,7 +313,7 @@ function getIntMRulesSample() {
 }
 exports.getIntMRulesSample = getIntMRulesSample;
 function getMRulesSample() {
-    return mgnlq_Model_1.Model.splitRules(getIntMRulesSample());
+    return mgnlq_model_2.Model.splitRules(getIntMRulesSample());
 }
 exports.getMRulesSample = getMRulesSample;
 function assureLowerCaseWord(mRules) {
@@ -324,20 +325,24 @@ function assureLowerCaseWord(mRules) {
     });
 }
 exports.assureLowerCaseWord = assureLowerCaseWord;
-function getUnitTestUrl(string) {
-    return mUnitTestURLMap[string];
+/*
+
+export function getUnitTestUrl(string: string) {
+  return mUnitTestURLMap[string];
 }
-exports.getUnitTestUrl = getUnitTestUrl;
-function getWikiUrl(string) {
-    // TODO
-    return mUnitTestURLMap[string];
+
+export function getWikiUrl(string: string) {
+  // TODO
+  return mUnitTestURLMap[string];
 }
-exports.getWikiUrl = getWikiUrl;
-function getMRulesFull() {
-    var mRules = getIntMRulesSample();
-    mRules = assureLowerCaseWord(mRules);
-    return mgnlq_Model_1.Model.splitRules(mRules.sort(cmpMRule));
+
+
+export function getMRulesFull(): IMatch.SplitRules {
+  var mRules = getIntMRulesSample();
+  mRules = assureLowerCaseWord(mRules);
+  return Model.splitRules(mRules.sort(cmpMRule));
 }
-exports.getMRulesFull = getMRulesFull;
+
+*/ 
 
 //# sourceMappingURL=inputFilterRules.js.map

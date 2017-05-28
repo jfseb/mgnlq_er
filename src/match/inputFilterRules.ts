@@ -15,7 +15,7 @@ var aregex = /\/([^/]*).qunit.html/;
 
 
 var mRuleArray: Array<IFModel.mRule>;
-
+/*
 export function compareMRuleFull(a: IFModel.mRule, b: IFModel.mRule) {
   var r = a.category.localeCompare(b.category);
   if (r) {
@@ -49,6 +49,7 @@ export function compareMRuleFull(a: IFModel.mRule, b: IFModel.mRule) {
   }
   return 0;
 }
+*/
 
 export function cmpMRule(a: IFModel.mRule, b: IFModel.mRule) {
   var r = a.category.localeCompare(b.category);
@@ -67,10 +68,10 @@ export function cmpMRule(a: IFModel.mRule, b: IFModel.mRule) {
   }
   if (a.word && b.word) {
     return a.word.localeCompare(b.word);
-    /*
+/*
     if(r) {
       return r;
-    }*/
+*/
   }
   r = (a._ranking || 1.0) - (b._ranking || 1.0);
   if(r) {
@@ -338,6 +339,7 @@ export function assureLowerCaseWord(mRules: Array<IFModel.mRule>) {
     return oRule;
   });
 }
+/*
 
 export function getUnitTestUrl(string: string) {
   return mUnitTestURLMap[string];
@@ -354,3 +356,5 @@ export function getMRulesFull(): IMatch.SplitRules {
   mRules = assureLowerCaseWord(mRules);
   return Model.splitRules(mRules.sort(cmpMRule));
 }
+
+*/
