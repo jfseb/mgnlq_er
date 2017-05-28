@@ -4,7 +4,7 @@ import * as xinputFilter from './inputFilter';
 import * as IMatch from './iferbase';
 
 import { IFModel as IFModel } from 'mgnlq_model';
-import { Model } from 'mgnlq_Model';
+import { Model } from 'mgnlq_model';
 
 
 export const oKeyOrder: Array<String> = ["systemObjectCategory", "systemId", "systemObjectId"];
