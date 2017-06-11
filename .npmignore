@@ -1,4 +1,5 @@
 node_modules
+*.tgz
 testmodel/_cache.js.zip
 docs
 logs

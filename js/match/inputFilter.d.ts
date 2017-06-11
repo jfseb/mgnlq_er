@@ -25,11 +25,14 @@ export declare function compareContext(oA: any, oB: any, aKeyIgnore?: any): {
     spuriousL: number;
     spuriousR: number;
 };
+export declare function cmpByResult(a: IFMatch.ICategorizedStringRanged, b: IFMatch.ICategorizedStringRanged): number;
+export declare function cmpByResultThenRank(a: IFMatch.ICategorizedStringRanged, b: IFMatch.ICategorizedStringRanged): number;
 export declare function checkOneRule(string: string, lcString: string, exact: boolean, res: Array<IFMatch.ICategorizedString>, oRule: IFModel.mRule, cntRec?: ICntRec): void;
 export declare function checkOneRuleWithOffset(string: string, lcString: string, exact: boolean, res: Array<IMatch.ICategorizedStringRanged>, oRule: IFModel.mRule, cntRec?: ICntRec): void;
 export declare function categorizeString(word: string, exact: boolean, oRules: Array<IFModel.mRule>, cntRec?: ICntRec): Array<IFMatch.ICategorizedString>;
 export declare function categorizeSingleWordWithOffset(word: string, lcword: string, exact: boolean, oRules: Array<IFModel.mRule>, cntRec?: ICntRec): Array<IFMatch.ICategorizedStringRanged>;
 export declare function postFilter(res: Array<IFMatch.ICategorizedString>): Array<IFMatch.ICategorizedString>;
+export declare function dropLowerRankedEqualResult(res: Array<IFMatch.ICategorizedStringRanged>): Array<IFMatch.ICategorizedStringRanged>;
 export declare function postFilterWithOffset(res: Array<IFMatch.ICategorizedStringRanged>): Array<IFMatch.ICategorizedStringRanged>;
 export declare function categorizeString2(word: string, exact: boolean, rules: IFMatch.SplitRules, cntRec?: ICntRec): Array<IFMatch.ICategorizedString>;
 export declare function categorizeWordInternalWithOffsets(word: string, lcword: string, exact: boolean, rules: IMatch.SplitRules, cntRec?: ICntRec): Array<IFMatch.ICategorizedStringRanged>;
