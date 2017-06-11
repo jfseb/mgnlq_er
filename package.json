@@ -1,6 +1,6 @@
 {
   "name": "mgnlq_er",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "entity recognition",
   "main": "js/index.js",
   "typings": "js/index",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@types/debug": "0.0.29",
     "@types/node": "7.0.5",
+    "@types/mongoose": "^4.7.9",
     "babel-preset-es2015": "^6.22.0",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
@@ -41,8 +42,8 @@
     "gulp-run": "^1.7.1",
     "gulp-typescript": "^3.1.5",
     "mgnlq_testmodel": "^0.0.4",
-    "mgnlq_testmodel_replay": "^0.0.1",
-    "mongoose_record_replay": "^0.0.5",
+    "mgnlq_testmodel_replay": "^0.0.4",
+    "mongoose_record_replay": "^0.0.6",
     "nyc": "^10.3.2",
     "typescript": "^2.2.1"
   },
@@ -50,7 +51,7 @@
     "abot_stringdist": "^0.1.3",
     "abot_utils": "^0.1.0",
     "debugf": "^0.1.2",
-    "mgnlq_model": "^0.0.2",
+    "mgnlq_model": "^0.0.3",
     "mongoose": "^4.9.9"
   }
 }
