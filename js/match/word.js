@@ -39,6 +39,9 @@ exports.Word = {
         return exports.Category.isCategory(word.category);
     },
     isDomain: function (word) {
+        if (word.rule && word.rule.wordType) {
+            return word.rule.wordType === 'D' /* WORDTYPE_D */;
+        }
         return exports.Category.isDomain(word.category);
     }
 };

@@ -499,7 +499,7 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
     if((resx.matchedString === res[index-1].matchedString)
       && (resx.category === res[index-1].category)
       ) {
-        console.log('postfilter ignoring bitinidex!!!');
+        debuglog('postfilter ignoring bitinidex!!!');
       return false;
     }
     //console.log("\n delta for " + delta + "  " + resx._ranking);
@@ -586,7 +586,7 @@ export function categorizeString2(word: string, exact: boolean,  rules : IFMatch
   , cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
   // simply apply all rules
   if (debuglogM.enabled )  {
-    debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
+    // TODO thisis ciruclar ! debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
   }
   var lcString = word.toLowerCase();
   var res: Array<IFMatch.ICategorizedString> = [];
@@ -620,7 +620,7 @@ export function categorizeWordInternalWithOffsets(word: string, lcword : string,
   debuglogM("categorize " + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact)
   // simply apply all rules
   if (debuglogV.enabled )  {
-    debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
+    // TODO this is circular: debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
   }
   var res: Array<IMatch.ICategorizedStringRanged> = [];
   if (exact) {
@@ -771,6 +771,7 @@ export function resetCnt() {
 */
 
 export function categorizeWordWithRankCutoff(sWordGroup: string, splitRules : IMatch.SplitRules , cntRec? : ICntRec ): Array<IFMatch.ICategorizedString> {
+  debuglog('cwwrc' + sWordGroup)
   var seenIt = categorizeString2(sWordGroup, true, splitRules, cntRec);
   //totalCnt += 1;
   // exactLen += seenIt.length;
@@ -869,20 +870,6 @@ export function categorizeWordWithOffsetWithRankCutoffSingle(word: string, rule:
 }
 
 
-
-/*
-export function dumpCnt() {
-  console.log(`
-exactLen = ${exactLen};
-exactCnt = ${exactCnt};
-fuzzyLen = ${fuzzyLen};
-fuzzyCnt = ${fuzzyCnt};
-totalCnt = ${totalCnt};
-totalLen = ${totalLen};
-retainedLen = ${retainedCnt};
-  `);
-}
-*/
 
 /*
 export function filterRemovingUncategorizedSentence(oSentence: IFMatch.ICategorizedString[][]): boolean {

@@ -83,6 +83,27 @@ function dumpNice(sentence, fn) {
     return result.join("");
 }
 exports.dumpNice = dumpNice;
+function dumpNiceRuled(sentence, fn) {
+    var result = [];
+    sentence.forEach(function (oWord, index) {
+        var sWord = "[" + index + "] : " + (oWord._ranking || 0).toFixed(3) + " " + oWord.category + " \"" + oWord.string + "\" => \"" + oWord.matchedString + "\" ";
+        result.push(sWord + "\n");
+    });
+    result.push(".\n");
+    return result.join("");
+}
+exports.dumpNiceRuled = dumpNiceRuled;
+function dumpNiceBitIndexed(sentence, fn) {
+    var result = [];
+    sentence.forEach(function (word, index) {
+        var sWord = "[" + index + "] : " + (word._ranking || 0).toFixed(3) + " \"" + word.string + "\" => \"" + word.matchedString + "\" "
+            + word.category + (word.span ? '/' + word.span : '') + (" " + word.rule.wordType + word.rule.bitindex);
+        result.push(sWord + "\n");
+    });
+    result.push(".\n");
+    return result.join("");
+}
+exports.dumpNiceBitIndexed = dumpNiceBitIndexed;
 function dumpNiceArr(sentences, fn) {
     if (!sentences) {
         return "";
@@ -93,5 +114,12 @@ function dumpNiceArr(sentences, fn) {
     return res;
 }
 exports.dumpNiceArr = dumpNiceArr;
+function simplifyStringsWithBitIndex(sentence) {
+    if (!sentence) {
+        return [];
+    }
+    return sentence.map(function (word) { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : '') + (" " + word.rule.wordType + word.rule.bitindex); });
+}
+exports.simplifyStringsWithBitIndex = simplifyStringsWithBitIndex;
 
 //# sourceMappingURL=sentence.js.map

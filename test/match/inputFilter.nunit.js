@@ -34,6 +34,21 @@ if(!debuglog.enabled) {
   setMockDebug();
 }
 
+var getModel = require('mgnlq_testmodel_replay').getTestModel;
+
+function getRules() {
+  return getModel().then(
+    (model) => {
+      return Promise.resolve([model.rules, model]);
+    }
+  )
+}
+
+
+function releaseModel(theModel) {
+  Model.releaseModel(theModel);
+}
+
 const ab = inputFilter;
 
 exports.testcountAinB = function (test) {
@@ -1332,7 +1347,7 @@ exports.testCategorizeAWordWithOffest = function (test) {
 
 
 process.on('unhandledRejection', function onError(err) {
-  console.log('erbase.nunit.js');
+  console.log('inputFilter.nunit.js');
   console.log(err);
   console.log(err.stack);
   throw err;

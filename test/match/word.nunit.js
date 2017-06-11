@@ -32,6 +32,13 @@ exports.testWordisDomain= function (test) {
   test.deepEqual(Word.isDomain({ category : 'category'}), false, ' first correct');
   test.deepEqual(Word.isDomain({ category : 'domain'}), true, 'wiki is ');
   test.deepEqual(Word.isDomain({}), false, 'empty correct');
+  test.deepEqual(Word.isDomain({'string':'cusmos','rule':{'category':'domain','matchedString':'Cosmos','type':0,'word':'Cosmos','bitindex':16,'bitSentenceAnd':16,'exactOnly':false,'wordType':'F','_ranking':0.95,'lowercaseword':'cosmos'},'matchedString':'Cosmos','category':'domain','_ranking':0.8913821472645002,'levenmatch':0.9382969971205265}
+  ), false, 'wordtype f ');
+  test.deepEqual(Word.isDomain({'string':'cusmos','rule':{'category':'domain','matchedString':'Cosmos','type':0,'word':'Cosmos','bitindex':16,'bitSentenceAnd':16,'exactOnly':false,'wordType':'F','_ranking':0.95,'lowercaseword':'cosmos'},'matchedString':'Cosmos','category':'domain','_ranking':0.8913821472645002,'levenmatch':0.9382969971205265}),
+    false, 'wordtype f ');
+  test.deepEqual(Word.isDomain({'string':'cusmos','rule':{'category':'domain','matchedString':'Cosmos','type':0,'word':'Cosmos','bitindex':1,'bitSentenceAnd':1,'wordType':'D','_ranking':0.95,'lowercaseword':'cosmos'},'matchedString':'Cosmos','category':'domain','_ranking':0.8913821472645002,'levenmatch':0.9382969971205265}),
+true, 'correct type');
+
   test.done();
 };
 

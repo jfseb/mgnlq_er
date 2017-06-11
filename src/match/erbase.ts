@@ -16,7 +16,7 @@ import * as debug from 'debugf';
 
 
 var debuglog = debug('erbase');
-var debuglogV = debug('erbase');
+var debuglogV = debug('erVbase');
 var perflog = debug('perf');
 
 import { BreakDown as breakdown}  from 'mgnlq_model';
@@ -116,10 +116,10 @@ export function tokenizeString(sString: string, rules: IMatch.SplitRules,
         }
     */
     hasRecombined = hasRecombined || !seenIt.every(res => !res.rule.range);
-    debuglog(debuglog.enabled ? (` categorized ${token}/${index} to ` + JSON.stringify(seenIt))
+    debuglogV(debuglogV.enabled ? (` categorized ${token}/${index} to ` + JSON.stringify(seenIt))
      : "-");
     debuglog(debuglog.enabled ? (` categorized ${token}/${index} to ` +
-    seenIt.map( (it,idx) => { return ` ${it.rule.wordType} ${idx} ${it.rule.bitindex}  ${it.rule.matchedString}/${it.rule.category} ` }).join("\n"))
+    seenIt.map( (it,idx) => { return ` ${idx}  ${it.rule.matchedString}/${it.rule.category}  ${it.rule.wordType}${it.rule.bitindex} ` }).join("\n"))
      : "-");
     categorizedSentence[index] = seenIt;
     cnt = cnt + seenIt.length;
@@ -513,27 +513,22 @@ export function processString2(query: string, rules: IFModel.SplitRules,
 ):  IMatch.IProcessedSentences {
   words = words || {};
   var tokenStruct = tokenizeString(query, rules, words);
+  debuglog(()=> `tokenized:\n` + tokenStruct.categorizedWords.map( s => Sentence.simplifyStringsWithBitIndex(s).join("\n") ).join("\n"));
   evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable,
     tokenStruct.categorizedWords);
-  if (debuglog.enabled) {
-    debuglog("After matched " + JSON.stringify(tokenStruct.categorizedWords));
-  }
+  debuglogV(()=>"After matched " + JSON.stringify(tokenStruct.categorizedWords));
   var aSentences = expandTokenMatchesToSentences2(tokenStruct.tokens, tokenStruct.categorizedWords);
-  if (debuglog.enabled) {
-    debuglog("after expand" + aSentences.sentences.map(function (oSentence) {
-    return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
+  debuglog(() => "after expand " + aSentences.sentences.map(function (oSentence) {
+    return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
     }).join("\n"));
-  }
-
   var aSentences = filterNonSameInterpretations(aSentences);
-
-
   aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
-  if (debuglog.enabled) {
-    debuglog(()=> "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
-      return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
+  debuglogV(()=> "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
+      return Sentence.rankingProduct(oSentence) + ":\n" + JSON.stringify(oSentence);
     }).join("\n"));
-  }
+  debuglog(() => "after reinforce" + aSentences.sentences.map(function (oSentence) {
+    return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
+    }).join("\n"));
   return aSentences;
 }
 

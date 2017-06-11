@@ -407,7 +407,7 @@ function postFilter(res) {
         var delta = bestRank / resx._ranking;
         if ((resx.matchedString === res[index - 1].matchedString)
             && (resx.category === res[index - 1].category)) {
-            console.log('postfilter ignoring bitinidex!!!');
+            debuglog('postfilter ignoring bitinidex!!!');
             return false;
         }
         //console.log("\n delta for " + delta + "  " + resx._ranking);
@@ -486,7 +486,7 @@ exports.postFilterWithOffset = postFilterWithOffset;
 function categorizeString2(word, exact, rules, cntRec) {
     // simply apply all rules
     if (debuglogM.enabled) {
-        debuglogM("rules : " + JSON.stringify(rules, undefined, 2));
+        // TODO thisis ciruclar ! debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
     }
     var lcString = word.toLowerCase();
     var res = [];
@@ -518,7 +518,7 @@ function categorizeWordInternalWithOffsets(word, lcword, exact, rules, cntRec) {
     debuglogM("categorize " + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact);
     // simply apply all rules
     if (debuglogV.enabled) {
-        debuglogV("rules : " + JSON.stringify(rules, undefined, 2));
+        // TODO this is circular: debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
     }
     var res = [];
     if (exact) {
@@ -663,6 +663,7 @@ export function resetCnt() {
 }
 */
 function categorizeWordWithRankCutoff(sWordGroup, splitRules, cntRec) {
+    debuglog('cwwrc' + sWordGroup);
     var seenIt = categorizeString2(sWordGroup, true, splitRules, cntRec);
     //totalCnt += 1;
     // exactLen += seenIt.length;
@@ -754,19 +755,6 @@ function categorizeWordWithOffsetWithRankCutoffSingle(word, rule) {
     return undefined;
 }
 exports.categorizeWordWithOffsetWithRankCutoffSingle = categorizeWordWithOffsetWithRankCutoffSingle;
-/*
-export function dumpCnt() {
-  console.log(`
-exactLen = ${exactLen};
-exactCnt = ${exactCnt};
-fuzzyLen = ${fuzzyLen};
-fuzzyCnt = ${fuzzyCnt};
-totalCnt = ${totalCnt};
-totalLen = ${totalLen};
-retainedLen = ${retainedCnt};
-  `);
-}
-*/
 /*
 export function filterRemovingUncategorizedSentence(oSentence: IFMatch.ICategorizedString[][]): boolean {
   return oSentence.every(function (oWordGroup) {

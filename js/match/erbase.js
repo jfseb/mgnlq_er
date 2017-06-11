@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var WordMatch = require("./inputFilter");
 var debug = require("debugf");
 var debuglog = debug('erbase');
-var debuglogV = debug('erbase');
+var debuglogV = debug('erVbase');
 var perflog = debug('perf');
 var mgnlq_model_1 = require("mgnlq_model");
 var ERError = require("./ererror");
@@ -67,10 +67,10 @@ function tokenizeString(sString, rules, words) {
             }
         */
         hasRecombined = hasRecombined || !seenIt.every(function (res) { return !res.rule.range; });
-        debuglog(debuglog.enabled ? (" categorized " + token + "/" + index + " to " + JSON.stringify(seenIt))
+        debuglogV(debuglogV.enabled ? (" categorized " + token + "/" + index + " to " + JSON.stringify(seenIt))
             : "-");
         debuglog(debuglog.enabled ? (" categorized " + token + "/" + index + " to " +
-            seenIt.map(function (it, idx) { return " " + it.rule.wordType + " " + idx + " " + it.rule.bitindex + "  " + it.rule.matchedString + "/" + it.rule.category + " "; }).join("\n"))
+            seenIt.map(function (it, idx) { return " " + idx + "  " + it.rule.matchedString + "/" + it.rule.category + "  " + it.rule.wordType + it.rule.bitindex + " "; }).join("\n"))
             : "-");
         categorizedSentence[index] = seenIt;
         cnt = cnt + seenIt.length;
@@ -450,23 +450,21 @@ exports.filterNonSameInterpretations = filterNonSameInterpretations;
 function processString2(query, rules, words) {
     words = words || {};
     var tokenStruct = tokenizeString(query, rules, words);
+    debuglog(function () { return "tokenized:\n" + tokenStruct.categorizedWords.map(function (s) { return Sentence.simplifyStringsWithBitIndex(s).join("\n"); }).join("\n"); });
     evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable, tokenStruct.categorizedWords);
-    if (debuglog.enabled) {
-        debuglog("After matched " + JSON.stringify(tokenStruct.categorizedWords));
-    }
+    debuglogV(function () { return "After matched " + JSON.stringify(tokenStruct.categorizedWords); });
     var aSentences = expandTokenMatchesToSentences2(tokenStruct.tokens, tokenStruct.categorizedWords);
-    if (debuglog.enabled) {
-        debuglog("after expand" + aSentences.sentences.map(function (oSentence) {
-            return Sentence.rankingProduct(oSentence) + ":" + Sentence.dumpNice(oSentence); //JSON.stringify(oSentence);
-        }).join("\n"));
-    }
+    debuglog(function () { return "after expand " + aSentences.sentences.map(function (oSentence) {
+        return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
+    }).join("\n"); });
     var aSentences = filterNonSameInterpretations(aSentences);
     aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
-    if (debuglog.enabled) {
-        debuglog(function () { return "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
-            return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
-        }).join("\n"); });
-    }
+    debuglogV(function () { return "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
+        return Sentence.rankingProduct(oSentence) + ":\n" + JSON.stringify(oSentence);
+    }).join("\n"); });
+    debuglog(function () { return "after reinforce" + aSentences.sentences.map(function (oSentence) {
+        return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
+    }).join("\n"); });
     return aSentences;
 }
 exports.processString2 = processString2;

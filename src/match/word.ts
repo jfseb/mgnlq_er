@@ -47,6 +47,9 @@ export const Word = {
     return Category.isCategory(word.category);
   },
   isDomain : function(word : IMatch.IWord) : boolean {
+    if(word.rule && word.rule.wordType) {
+      return word.rule.wordType === 'D' /* WORDTYPE_D */;
+    }
     return Category.isDomain(word.category);
   }
 };

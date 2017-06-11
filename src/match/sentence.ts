@@ -89,6 +89,28 @@ export function dumpNice(sentence : IMatch.ISentence, fn?: any) : string {
     return result.join("");
 }
 
+export function dumpNiceRuled(sentence : IMatch.ISentence, fn?: any) : string {
+  var result = [];
+    sentence.forEach(function(oWord, index) {
+      var sWord = `[${index}] : ${(oWord._ranking || 0).toFixed(3)} ${oWord.category} "${oWord.string}" => "${oWord.matchedString}" `
+      result.push(sWord + "\n");
+    })
+    result.push(".\n");
+    return result.join("");
+}
+
+
+export function dumpNiceBitIndexed(sentence : IMatch.ISentence, fn?: any) : string {
+  var result = [];
+    sentence.forEach(function(word, index) {
+      var sWord = `[${index}] : ${(word._ranking || 0).toFixed(3)} "${word.string}" => "${word.matchedString}" `
+      + word.category + ((word as any).span? '/' + (word as any).span : '') + ` ${word.rule.wordType}${word.rule.bitindex}`;
+      result.push(sWord + "\n");
+    })
+    result.push(".\n");
+    return result.join("");
+}
+
 
 export function dumpNiceArr(sentences : IMatch.ISentence[], fn? : any) : string {
   if(!sentences) {
@@ -98,4 +120,11 @@ export function dumpNiceArr(sentences : IMatch.ISentence[], fn? : any) : string 
     return prev + dumpNice(oSentence);
   }, "")
   return res;
+}
+
+export function simplifyStringsWithBitIndex(sentence : IMatch.ISentence) {
+  if(!sentence) {
+    return [];
+  }
+  return sentence.map(word =>  { return word.string + '=>' +  word.matchedString + '/' + word.category + ((word as any).span? '/' + (word as any).span : '') + ` ${word.rule.wordType}${word.rule.bitindex}`})
 }
