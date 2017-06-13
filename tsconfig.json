@@ -35,7 +35,6 @@
         "src/match/iferbase.ts",
         "src/match/iferbase.ts",
         "src/match/inputFilter.ts",
-        "src/match/inputFilterRules.ts",
         "src/match/sentence.ts",
         "src/match/word.ts",
         "src/index.ts"
