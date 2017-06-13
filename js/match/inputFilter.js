@@ -29,7 +29,6 @@ var utils = require("abot_utils");
 //import * as inputFilterRules from './inputFilterRules';
 var Algol = require("./algol");
 var IFMatch = require("./iferbase");
-var mgnlq_model_2 = require("mgnlq_model");
 var AnyObject = Object;
 var debuglog = debug('inputFilter');
 var debuglogV = debug('inputVFilter');
@@ -351,18 +350,21 @@ function addCntRec(cntRec, member, number) {
     }
     cntRec[member] = (cntRec[member] || 0) + number;
 }
-function categorizeString(word, exact, oRules, cntRec) {
-    // simply apply all rules
-    debuglogV(function () { return "rules : " + JSON.stringify(oRules, undefined, 2); });
-    var lcString = word.toLowerCase();
-    var res = [];
-    oRules.forEach(function (oRule) {
-        checkOneRule(word, lcString, exact, res, oRule, cntRec);
-    });
-    res.sort(sortByRank);
-    return res;
+/*
+export function categorizeString(word: string, exact: boolean, oRules: Array<IFModel.mRule>,
+ cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
+  // simply apply all rules
+  debuglogV(() => "rules : " + JSON.stringify(oRules, undefined, 2));
+
+  var lcString = word.toLowerCase();
+  var res: Array<IFMatch.ICategorizedString> = []
+  oRules.forEach(function (oRule) {
+    checkOneRule(word,lcString,exact,res,oRule,cntRec);
+  });
+  res.sort(sortByRank);
+  return res;
 }
-exports.categorizeString = categorizeString;
+*/
 function categorizeSingleWordWithOffset(word, lcword, exact, oRules, cntRec) {
     // simply apply all rules
     debuglogV(function () { return "rules : " + JSON.stringify(oRules, undefined, 2); });
@@ -463,37 +465,43 @@ function postFilterWithOffset(res) {
     return r;
 }
 exports.postFilterWithOffset = postFilterWithOffset;
-function categorizeString2(word, exact, rules, cntRec) {
-    // simply apply all rules
-    if (debuglogM.enabled) {
-        // TODO thisis ciruclar ! debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
+/*
+export function categorizeString2(word: string, exact: boolean,  rules : IFMatch.SplitRules
+  , cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
+  // simply apply all rules
+  if (debuglogM.enabled )  {
+    // TODO thisis ciruclar ! debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
+  }
+  var u = 1;
+  if( u === 1) {
+    throw new Error('categorized String2');
+
+  }
+  var lcString = word.toLowerCase();
+  var res: Array<IFMatch.ICategorizedString> = [];
+  if (exact) {
+    var r = rules.wordMap[lcString];
+    if (r) {
+      r.rules.forEach(function(oRule) {
+        res.push({
+            string: word,
+            matchedString: oRule.matchedString,
+            category: oRule.category,
+            _ranking: oRule._ranking || 1.0
+          })
+     });
     }
-    var lcString = word.toLowerCase();
-    var res = [];
-    if (exact) {
-        var r = rules.wordMap[lcString];
-        if (r) {
-            r.rules.forEach(function (oRule) {
-                res.push({
-                    string: word,
-                    matchedString: oRule.matchedString,
-                    category: oRule.category,
-                    _ranking: oRule._ranking || 1.0
-                });
-            });
-        }
-        rules.nonWordRules.forEach(function (oRule) {
-            checkOneRule(word, lcString, exact, res, oRule, cntRec);
-        });
-        res.sort(sortByRank);
-        return res;
-    }
-    else {
-        debuglog(function () { return "categorize non exact" + word + " xx  " + rules.allRules.length; });
-        return postFilter(categorizeString(word, exact, rules.allRules, cntRec));
-    }
+    rules.nonWordRules.forEach(function (oRule) {
+      checkOneRule(word,lcString,exact,res,oRule,cntRec);
+    });
+    res.sort(sortByRank);
+    return res;
+  } else {
+    debuglog(()=>"categorize non exact" + word + " xx  " + rules.allRules.length);
+    return postFilter(categorizeString(word, exact, rules.allRules, cntRec));
+  }
 }
-exports.categorizeString2 = categorizeString2;
+*/
 function categorizeWordInternalWithOffsets(word, lcword, exact, rules, cntRec) {
     debuglogM("categorize  CWIWO" + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact);
     // simply apply all rules
@@ -636,36 +644,39 @@ export function resetCnt() {
   retainedCnt = 0;
 }
 */
-function categorizeWordWithRankCutoff(sWordGroup, splitRules, cntRec) {
-    debuglog('cwwrc' + sWordGroup);
-    var seenIt = categorizeString2(sWordGroup, true, splitRules, cntRec);
-    //totalCnt += 1;
-    // exactLen += seenIt.length;
-    addCntRec(cntRec, 'cntCatExact', 1);
-    addCntRec(cntRec, 'cntCatExactRes', seenIt.length);
-    if (exports.RankWord.hasAbove(seenIt, 0.8)) {
-        if (cntRec) {
-            addCntRec(cntRec, 'exactPriorTake', seenIt.length);
-        }
-        seenIt = exports.RankWord.takeAbove(seenIt, 0.8);
-        if (cntRec) {
-            addCntRec(cntRec, 'exactAfterTake', seenIt.length);
-        }
-        // exactCnt += 1;
+/*
+export function categorizeWordWithRankCutoff(sWordGroup: string, splitRules : IMatch.SplitRules , cntRec? : ICntRec ): Array<IFMatch.ICategorizedString> {
+  debuglog('cwwrc' + sWordGroup)
+  console.log('cwwrc called');
+  var u = 1;
+  var seenIt = categorizeString2(sWordGroup, true, splitRules, cntRec);
+  //totalCnt += 1;
+  // exactLen += seenIt.length;
+  addCntRec(cntRec, 'cntCatExact', 1);
+  addCntRec(cntRec, 'cntCatExactRes', seenIt.length);
+
+  if (RankWord.hasAbove(seenIt, 0.8)) {
+    if(cntRec) {
+      addCntRec(cntRec, 'exactPriorTake', seenIt.length)
     }
-    else {
-        seenIt = categorizeString2(sWordGroup, false, splitRules, cntRec);
-        addCntRec(cntRec, 'cntNonExact', 1);
-        addCntRec(cntRec, 'cntNonExactRes', seenIt.length);
-        //  fuzzyLen += seenIt.length;
-        //  fuzzyCnt += 1;
+    seenIt = RankWord.takeAbove(seenIt, 0.8);
+    if(cntRec) {
+      addCntRec(cntRec, 'exactAfterTake', seenIt.length)
     }
-    // totalLen += seenIt.length;
-    seenIt = exports.RankWord.takeFirstN(seenIt, Algol.Top_N_WordCategorizations);
-    // retainedCnt += seenIt.length;
-    return seenIt;
+   // exactCnt += 1;
+  } else {
+    seenIt = categorizeString2(sWordGroup, false, splitRules, cntRec);
+    addCntRec(cntRec, 'cntNonExact', 1);
+    addCntRec(cntRec, 'cntNonExactRes', seenIt.length);
+  //  fuzzyLen += seenIt.length;
+  //  fuzzyCnt += 1;
+  }
+ // totalLen += seenIt.length;
+  seenIt = RankWord.takeFirstN(seenIt, Algol.Top_N_WordCategorizations);
+ // retainedCnt += seenIt.length;
+  return seenIt;
 }
-exports.categorizeWordWithRankCutoff = categorizeWordWithRankCutoff;
+*/
 /* if we have a  "Run like the Wind"
   an a user type fun like  a Rind , and Rind is an exact match,
   we will not start looking for the long sentence
@@ -747,7 +758,8 @@ export function filterRemovingUncategorized(arr: IFMatch.ICategorizedString[][][
 function categorizeAWord(sWordGroup, rules, sentence, words, cntRec) {
     var seenIt = words[sWordGroup];
     if (seenIt === undefined) {
-        seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
+        //seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
+        seenIt = categorizeWordWithOffsetWithRankCutoff(sWordGroup, rules, cntRec);
         utils.deepFreeze(seenIt);
         words[sWordGroup] = seenIt;
     }
@@ -788,38 +800,55 @@ exports.categorizeAWord = categorizeAWord;
  *
  *
  */
-function analyzeString(sString, rules, words) {
-    var cnt = 0;
-    var fac = 1;
-    var u = mgnlq_model_2.BreakDown.breakdownString(sString, Algol.MaxSpacesPerCombinedWord);
-    debuglog(function () { return "here breakdown" + JSON.stringify(u); });
-    //console.log(JSON.stringify(u));
-    words = words || {};
-    debugperf(function () { return 'this many known words: ' + Object.keys(words).length; });
-    var res = [];
-    var cntRec = {};
-    u.forEach(function (aBreakDownSentence) {
-        var categorizedSentence = [];
-        var isValid = aBreakDownSentence.every(function (sWordGroup, index) {
-            var seenIt = categorizeAWord(sWordGroup, rules, sString, words, cntRec);
-            if (seenIt.length === 0) {
-                return false;
-            }
-            categorizedSentence[index] = seenIt;
-            cnt = cnt + seenIt.length;
-            fac = fac * seenIt.length;
-            return true;
-        });
-        if (isValid) {
-            res.push(categorizedSentence);
+/*
+export function analyzeString(sString: string, rules: IMatch.SplitRules,
+  words?: { [key: string]: Array<IFMatch.ICategorizedString> })
+  : [ [ IMatch.ICategorizedString[]] ]
+   {
+  var cnt = 0;
+  var fac = 1;
+  if(cnt === 0) {
+    throw Error('use processStrign2');
+  }
+  var u = breakdown.breakdownString(sString, Algol.MaxSpacesPerCombinedWord);
+  debuglog(()=>"here breakdown" + JSON.stringify(u));
+  //console.log(JSON.stringify(u));
+  words = words || {};
+  debugperf(()=>'this many known words: ' + Object.keys(words).length);
+  var res = [] as [[ IMatch.ICategorizedString[]] ];
+  var cntRec = {};
+  u.forEach(function (aBreakDownSentence) {
+      var categorizedSentence = [] as [ IMatch.ICategorizedString[] ];
+      var isValid = aBreakDownSentence.every(function (sWordGroup: string, index : number) {
+        var seenIt = categorizeAWord(sWordGroup, rules, sString, words, cntRec);
+        if(seenIt.length === 0) {
+          return false;
         }
-    });
-    debuglog(function () { return " sentences " + u.length + " matches " + cnt + " fac: " + fac; });
-    debuglog(function () { return "first match " + JSON.stringify(u, undefined, 2); });
-    debugperf(function () { return " sentences " + u.length + " / " + res.length + " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec, undefined, 2); });
-    return res;
+        categorizedSentence[index] = seenIt;
+        cnt = cnt + seenIt.length;
+        fac = fac * seenIt.length;
+        return true;
+      });
+      if(isValid) {
+        res.push(categorizedSentence);
+      }
+  });
+  debuglog(()=>" sentences " + u.length + " matches " + cnt + " fac: " + fac);
+  debuglog( ()=> "first match "+ JSON.stringify(u,undefined,2));
+  debugperf(()=> " sentences " + u.length + " / " + res.length +  " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec,undefined,2));
+  return res;
 }
-exports.analyzeString = analyzeString;
+*/
+/**
+ * This is the main entry point for word categorization,
+ * If sentence is supplied it will be used
+ * @param sWordGroup a single word, g.e. "earth" or a combination "UI5 Component"
+ *  The word will *not* be broken down here, but diretyl matched against  rules
+ * @param rules rule index
+ * @param sentence optional, only for debugging
+ * @param words
+ * @param cntRec
+ */
 function categorizeAWordWithOffsets(sWordGroup, rules, sentence, words, cntRec) {
     var seenIt = words[sWordGroup];
     if (seenIt === undefined) {

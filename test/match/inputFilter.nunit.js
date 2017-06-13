@@ -1262,181 +1262,6 @@ exports.testinputFilter = function (test) {
   test.done();
 };
 
-var ifr = inputFilterRules.getMRulesSample();
-
-
-var ifr2 =  Model.splitRules([ {
-  "category" : "category",
-  "matchedString" : "element name",
-  _ranking : 0.95,
-  type : 0,
-  word : "element name",
-  lowercaseword : "element name"
-}]);
-
-exports.testCategorizeWordWithRankCutoff = function (test) {
-  var res = ab.categorizeWordWithRankCutoff('element names', ifr2);
-  delete res[0]._ranking;
-  delete res[0].levenmatch;
-  test.deepEqual(res, [
-    { string : 'element names', matchedString: 'element name' , category : 'category' }
-  ]);
- test.done();
-}
-
-exports.testCategorizeString = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('UV2', true, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(res, [
-    { string: 'UV2', matchedString: 'UV2', category: 'systemId', _ranking: 1 },
-    { string: 'UV2', matchedString: 'UV2', category: 'systemId', _ranking: 0.7 },
-    { string: 'UV2', matchedString: 'UV2', category: 'fiori catalog', _ranking: 0.5 },
-    { string: 'UV2', matchedString: 'UV2', category: 'systemObjectId', _ranking: 0.5 }
-  ], 'correct result');
-  test.done();
-};
-
-exports.testCategorizeStringClient = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('120', false, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res[0],
-    {
-      'string': '120',
-      'matchedString': '120',
-      'category': 'client',
-      _ranking: 0.8
-    }, 'what is this nr 2');
-  test.done();
-};
-
-exports.testCategorizeStringWiki = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('wiki', true, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(res, [
-    { string: 'wiki', matchedString: 'wiki', category: 'category', _ranking: 1 },
-    { string: 'wiki', matchedString: 'wiki', category: 'tool', _ranking: 1 },
-    { string: 'wiki', matchedString: 'wiki', category: 'transaction', _ranking: 0.7 },
-    { string: 'wiki', matchedString: 'wiki', category: 'fiori catalog', _ranking: 0.5 },
-    { string: 'wiki', matchedString: 'wiki', category: 'systemObjectId', _ranking: 0.5 }
-  ], 'correct result');
-  test.done();
-};
-
-exports.testCategorizeStringExactNoMatch = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('NavTargetRes', true, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res, [
-    {
-      'string': 'NavTargetRes',
-      'matchedString': 'NavTargetRes',
-      'category': 'fiori catalog',
-      _ranking: 0.5
-    },
-    {
-      'string': 'NavTargetRes',
-      'matchedString': 'NavTargetRes',
-      'category': 'systemObjectId',
-      _ranking: 0.5
-    }
-  ], 'what is this nr 2');
-  test.done();
-};
-
-
-exports.testCategorizeStringNonExactNoMatch = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('NavTargetRes', false, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res,[ { string: 'NavTargetRes',
-    matchedString: 'NavTargetResolution',
-    category: 'unit test',
-    _ranking: 0.9456071280563614,
-    levenmatch: 0.9456071280563614 },
-  { string: 'NavTargetRes',
-    matchedString: 'NavTargetRes',
-    category: 'fiori catalog',
-    _ranking: 0.5 },
-  { string: 'NavTargetRes',
-    matchedString: 'NavTargetRes',
-    category: 'systemObjectId',
-    _ranking: 0.5 } ], 'what is this nr 2');
-  test.done();
-};
-
-exports.testCategorizeStringExactMatch = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('NavTargetResolution', true, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res, [
-    {
-      'string': 'NavTargetResolution',
-      'matchedString': 'NavTargetResolution',
-      'category': 'unit test',
-      _ranking: 1,
-    },
-    {
-      'string': 'NavTargetResolution',
-      'matchedString': 'NavTargetResolution',
-      'category': 'fiori catalog',
-      _ranking: 0.5
-    },
-    {
-      'string': 'NavTargetResolution',
-      'matchedString': 'NavTargetResolution',
-      'category': 'systemObjectId',
-      _ranking: 0.5
-    }
-  ], ' exact match');
-  test.done();
-};
-
-exports.testCategorizeStringDistanceNavTarget = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('NavTargetResolut', false, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-delete res[0].levenmatch;
- res[0]._ranking = "0.9x";
-  test.deepEqual(res, [
-    {
-      'string': 'NavTargetResolut',
-      'matchedString': 'NavTargetResolution',
-      'category': 'unit test',
-      _ranking: "0.9x",
-     },
-    /*
-    {
-      'string': 'NavTargetResolu',
-      'matchedString': 'NavTargetResolutionAdapter',
-      'category': 'unit test',
-      _ranking : ab.levenPenalty(14),
-      'levenmatch': 14
-    },*/
-    {
-      'string': 'NavTargetResolut',
-      'matchedString': 'NavTargetResolut',
-      'category': 'fiori catalog',
-      _ranking: 0.5
-    },
-    {
-      'string': 'NavTargetResolut',
-      'matchedString': 'NavTargetResolut',
-      'category': 'systemObjectId',
-      _ranking: 0.5,
-    }
-  ], 'what is this 3');
-  test.done();
-};
-
-
-
 var mongoose = require('mongoose_record_replay').instrumentMongoose(require('mongoose'),
   'node_modules/mgnlq_testmodel_replay/mgrecrep/',
   'REPLAY');
@@ -1603,53 +1428,7 @@ exports.testCategorizeAWordWithOffsetCloseBoth = function (test) {
     });
 };
 
-
-exports.testCategorizeStringDistanceNavTargetInBetween = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.categorizeString2('NavTargetResolutioAd', false, ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res[0].matchedString, 'NavTargetResolution');
-  test.deepEqual(res[1].matchedString, 'NavTargetResolutionAdapter');
-  test.deepEqual(res.length, 4);
-
-  /*
-
-    , [
-      {
-        'string': 'NavTargetResolu',
-        'matchedString': 'NavTargetResolution',
-        'category': 'unit test',
-        _ranking : 1*ab.levenPenalty(4),
-        'levenmatch': 4
-      },
-      {
-        'string': 'NavTargetResolu',
-        'matchedString': 'NavTargetResolutionAdapter',
-        'category': 'unit test',
-        _ranking : ab.levenPenalty(14),
-        'levenmatch': 14
-      },
-      {
-        'string': 'NavTargetResolu',
-        'matchedString': 'NavTargetResolu',
-        'category': 'fiori catalog',
-        _ranking : 0.5
-      },
-      {
-        'string': 'NavTargetResolu',
-        'matchedString': 'NavTargetResolu',
-        'category': 'systemObjectId',
-        _ranking : 0.5,
-      }
-    ], 'what is this 3');
-
-    */
-  test.done();
-};
-
-
-
+/*
 exports.testCategorizeStringBadRule = function (test) {
   // debuglog(JSON.stringify(ifr, undefined, 2))
   test.expect(2);
@@ -1666,6 +1445,7 @@ exports.testCategorizeStringBadRule = function (test) {
   }
   test.done();
 };
+*/
 
 var sampleRules = Model.splitRules(inputFilterRules.assureLowerCaseWord([
   {
@@ -1699,56 +1479,16 @@ var sampleRules = Model.splitRules(inputFilterRules.assureLowerCaseWord([
   }
 ]));
 
-exports.testAnalyzeStringUV2Client120 = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.analyzeString('UV2 client 120', ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res,[ [ [ { string: 'UV2',
-        matchedString: 'UV2',
-        category: 'systemId',
-        _ranking: 1 } ],
-    [ { string: 'client 120',
-        matchedString: 'client',
-        category: 'category',
-        _ranking: 0.9506375976964212,
-        levenmatch: 0.9506375976964212 } ] ],
-  [ [ { string: 'UV2',
-        matchedString: 'UV2',
-        category: 'systemId',
-        _ranking: 1 } ],
-    [ { string: 'client',
-        matchedString: 'client',
-        category: 'category',
-        _ranking: 1 } ],
-    [ { string: '120',
-        matchedString: '120',
-        category: 'client',
-        _ranking: 0.8 } ] ] ], 'correct res');
-  test.done();
-};
-
-
-exports.testAnalyzeStringABC = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.analyzeString('ABC', ifr);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(res, [ [ [ { string: 'ABC',
-        matchedString: 'ABC',
-        category: 'systemId',
-        _ranking: 0.7 },
-      { string: 'ABC',
-        matchedString: 'ABC',
-        category: 'fiori catalog',
-        _ranking: 0.5 },
-      { string: 'ABC',
-        matchedString: 'ABC',
-        category: 'systemObjectId',
-        _ranking: 0.5 } ] ] ], 'correct res');
-  test.done();
-};
-
-
+function filterRules(res) {
+  var res = res.map( wordexp => wordexp.map( rx => rx.map(
+      obj => {
+         var r = Object.assign({},obj);
+         delete r.rule;
+         return r;
+      }
+  )));
+  return res;
+}
 
 var mRulesStrict = Model.splitRules( [
   {
@@ -1777,72 +1517,6 @@ var mRulesStrict = Model.splitRules( [
   }]
 );
 
-exports.testAnalyzeStringNoGenerics1 = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.analyzeString('unit test 120', mRulesStrict);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res, [ [ [ { string: 'unit test 120',
-        matchedString: 'unit test',
-        category: 'category',
-        _ranking: 0.9107025284820489,
-        levenmatch: 0.95863424050742 } ] ],
-  [ [ { string: 'unit test',
-        matchedString: 'unit test',
-        category: 'category',
-        _ranking: 0.95 } ],
-    [ { string: '120',
-        matchedString: '120',
-        category: 'client',
-        _ranking: 0.95 } ] ] ], 'correct res');
-  test.done();
-};
-
-
-exports.testAnalyzeStringNoGenericEmpty = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.analyzeString('gar nix  test is 120', mRulesStrict);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-  test.deepEqual(res, [], 'correct res');
-  var res2 = ab.expandMatchArr(res);
-  test.deepEqual(res2, [], 'correct res');
-  test.done();
-};
-
-
-
-exports.testCategorizeStringDistance = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  var res = ab.analyzeString('cat1 and ab', sampleRules);
-  debuglog('res > ' + JSON.stringify(res, undefined, 2));
-
-  test.deepEqual(res, [[[{
-    string: 'cat1 and ab',
-    matchedString: 'cat1 and ab',
-    category: 'unknown',
-    _ranking: 1
-  }]],
-    [[{ string: 'cat1', matchedString: 'CAT2', category: 'category', _ranking: 1 },
-  { string: 'cat1', matchedString: 'cat1', category: 'unknown', _ranking: 1 }],
-      [{
-        string: 'and ab',
-        matchedString: 'and ab',
-        category: 'unknown', _ranking: 1
-      }]],
-    [[{
-      string: 'cat1 and',
-      matchedString: 'cat1 and',
-      category: 'unknown', _ranking: 1
-    }],
-      [{ string: 'ab', matchedString: 'ab', category: 'CAT1', _ranking: 1 },
-  { string: 'ab', matchedString: 'ab', category: 'unknown', _ranking: 1 }]],
-    [[{ string: 'cat1', matchedString: 'CAT2', category: 'category', _ranking: 1 },
-  { string: 'cat1', matchedString: 'cat1', category: 'unknown', _ranking: 1 }],
-  [{ string: 'and', matchedString: 'and', category: 'unknown', _ranking: 1 }],
-      [{ string: 'ab', matchedString: 'ab', category: 'CAT1', _ranking: 1 },
-  { string: 'ab', matchedString: 'ab', category: 'unknown', _ranking: 1 }]]], ' correct result ');
-  test.done();
-};
 
 
 

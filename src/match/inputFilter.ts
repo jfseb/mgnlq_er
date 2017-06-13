@@ -435,6 +435,7 @@ function addCntRec(cntRec : ICntRec, member : string, number : number) {
   cntRec[member] = (cntRec[member] || 0) + number;
 }
 
+/*
 export function categorizeString(word: string, exact: boolean, oRules: Array<IFModel.mRule>,
  cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
   // simply apply all rules
@@ -448,6 +449,7 @@ export function categorizeString(word: string, exact: boolean, oRules: Array<IFM
   res.sort(sortByRank);
   return res;
 }
+*/
 
 
 
@@ -558,13 +560,17 @@ export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRange
   return r;
 }
 
-
-
+/*
 export function categorizeString2(word: string, exact: boolean,  rules : IFMatch.SplitRules
   , cntRec? : ICntRec): Array<IFMatch.ICategorizedString> {
   // simply apply all rules
   if (debuglogM.enabled )  {
     // TODO thisis ciruclar ! debuglogM("rules : " + JSON.stringify(rules,undefined, 2));
+  }
+  var u = 1;
+  if( u === 1) {
+    throw new Error('categorized String2');
+
   }
   var lcString = word.toLowerCase();
   var res: Array<IFMatch.ICategorizedString> = [];
@@ -590,6 +596,7 @@ export function categorizeString2(word: string, exact: boolean,  rules : IFMatch
     return postFilter(categorizeString(word, exact, rules.allRules, cntRec));
   }
 }
+*/
 
 
 export function categorizeWordInternalWithOffsets(word: string, lcword : string, exact: boolean,  rules : IMatch.SplitRules
@@ -742,8 +749,11 @@ export function resetCnt() {
 }
 */
 
+/*
 export function categorizeWordWithRankCutoff(sWordGroup: string, splitRules : IMatch.SplitRules , cntRec? : ICntRec ): Array<IFMatch.ICategorizedString> {
   debuglog('cwwrc' + sWordGroup)
+  console.log('cwwrc called');
+  var u = 1;
   var seenIt = categorizeString2(sWordGroup, true, splitRules, cntRec);
   //totalCnt += 1;
   // exactLen += seenIt.length;
@@ -771,6 +781,7 @@ export function categorizeWordWithRankCutoff(sWordGroup: string, splitRules : IM
  // retainedCnt += seenIt.length;
   return seenIt;
 }
+*/
 
 /* if we have a  "Run like the Wind"
   an a user type fun like  a Rind , and Rind is an exact match,
@@ -863,7 +874,8 @@ export function categorizeAWord(sWordGroup: string, rules: IMatch.SplitRules, se
 cntRec ? : ICntRec ) : IMatch.ICategorizedString[] {
   var seenIt = words[sWordGroup];
   if (seenIt === undefined) {
-    seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
+    //seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
+    seenIt = categorizeWordWithOffsetWithRankCutoff(sWordGroup,rules,cntRec);
     utils.deepFreeze(seenIt);
     words[sWordGroup] = seenIt;
   }
@@ -905,12 +917,17 @@ cntRec ? : ICntRec ) : IMatch.ICategorizedString[] {
  *
  *
  */
+
+/*
 export function analyzeString(sString: string, rules: IMatch.SplitRules,
   words?: { [key: string]: Array<IFMatch.ICategorizedString> })
   : [ [ IMatch.ICategorizedString[]] ]
    {
   var cnt = 0;
   var fac = 1;
+  if(cnt === 0) {
+    throw Error('use processStrign2');
+  }
   var u = breakdown.breakdownString(sString, Algol.MaxSpacesPerCombinedWord);
   debuglog(()=>"here breakdown" + JSON.stringify(u));
   //console.log(JSON.stringify(u));
@@ -939,8 +956,19 @@ export function analyzeString(sString: string, rules: IMatch.SplitRules,
   debugperf(()=> " sentences " + u.length + " / " + res.length +  " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec,undefined,2));
   return res;
 }
+*/
 
 
+/**
+ * This is the main entry point for word categorization,
+ * If sentence is supplied it will be used
+ * @param sWordGroup a single word, g.e. "earth" or a combination "UI5 Component"
+ *  The word will *not* be broken down here, but diretyl matched against  rules
+ * @param rules rule index
+ * @param sentence optional, only for debugging
+ * @param words
+ * @param cntRec
+ */
 export function categorizeAWordWithOffsets(sWordGroup: string, rules: IMatch.SplitRules, sentence: string, words: { [key: string]: Array<IFMatch.ICategorizedString>},
 cntRec ? : ICntRec ) : IMatch.ICategorizedStringRanged[] {
   var seenIt = words[sWordGroup];

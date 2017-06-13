@@ -34,16 +34,6 @@ export declare function categorizeSingleWordWithOffset(word: string, lcword: str
 export declare function postFilter(res: Array<IFMatch.ICategorizedString>): Array<IFMatch.ICategorizedString>;
 export declare function dropLowerRankedEqualResult(res: Array<IFMatch.ICategorizedStringRanged>): Array<IFMatch.ICategorizedStringRanged>;
 export declare function postFilterWithOffset(res: Array<IFMatch.ICategorizedStringRanged>): Array<IFMatch.ICategorizedStringRanged>;
-export declare function categorizeString2(word: string, exact: boolean, rules: IFMatch.SplitRules, cntRec?: ICntRec): Array<IFMatch.ICategorizedString>;
-export declare function categorizeWordInternalWithOffsets(word: string, lcword: string, exact: boolean, rules: IMatch.SplitRules, cntRec?: ICntRec): Array<IFMatch.ICategorizedStringRanged>;
-/**
- *
- * Options may be {
- * matchothers : true,  => only rules where all others match are considered
- * augment : true,
- * override : true }  =>
- *
- */
 export declare function matchWord(oRule: IFModel.IRule, context: IFMatch.context, options?: IMatchOptions): any;
 export declare function extractArgsMap(match: Array<string>, argsMap: {
     [key: number]: string;
