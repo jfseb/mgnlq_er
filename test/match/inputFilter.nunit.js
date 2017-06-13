@@ -44,7 +44,6 @@ function getRules() {
   )
 }
 
-
 function releaseModel(theModel) {
   Model.releaseModel(theModel);
 }
@@ -447,6 +446,110 @@ exports.test_checkOneRuleA = function (test) {
 };
 
 
+exports.test_checkOneRuleWordA = function (test) {
+  // prepare
+  var aRule = {
+      word: 'valuea',
+      key: 'keyA',
+      type: enumRULETYPEWORD,
+      follows: {
+        'keyA': 'Synonym',
+        'keyB': 'CategoryB'
+      }
+  };
+  test.expect(1);
+  // act
+  try {
+     var res = ab.checkOneRule('abc','abc', true, [], aRule, {});
+     test.equal(1,0);
+  } catch(e) {
+    test.equal(1,1);
+  }
+  test.done();
+};
+exports.test_checkOneRuleWordAExactFalse = function (test) {
+  // prepare
+  var aRule = {
+    word: 'Valuea',
+    key: 'keyA',
+    lowercaseword : "valuea",
+    type: enumRULETYPEWORD,
+    follows: {
+      'keyA': 'Synonym',
+      'keyB': 'CategoryB'
+    }
+  };
+  // act
+  var res = [];
+  ab.checkOneRule('Valuea','valuea', false, res, aRule, {});
+  test.equal(res && res.length, 1,' exact false ');
+  test.done();
+};
+
+exports.test_checkOneRuleWordAExact = function (test) {
+  // prepare
+  var aRule = {
+    word: 'Valuea',
+    key: 'keyA',
+    lowercaseword : "valuea",
+    type: enumRULETYPEWORD,
+    follows: {
+      'keyA': 'Synonym',
+      'keyB': 'CategoryB'
+    }
+  };
+  test.expect(4);
+  // act
+  var res = [];
+  ab.checkOneRule('Valuea','valuea', true, res, aRule, {});
+  test.equal(res && res.length, 1,true);
+  res = [];
+  ab.checkOneRule('VaLUEa','valueB', true, res, aRule, {});
+  test.equal(res && res.length, 0,false);
+  res = [];
+
+  ab.checkOneRule('Valuea','valuea', false, res, aRule, {});
+  test.equal(res && res.length, 1,' exact false ');
+  res = [];
+  ab.checkOneRule('VaLUEa','valuea', false, res, aRule, {});
+  test.equal(res && res.length, 1);
+  test.done();
+};
+
+exports.test_checkOneRuleWordAExactOnly = function (test) {
+  // prepare
+  var aRule = {
+    word: 'Valuea',
+    key: 'keyA',
+    exactOnly : true,
+    lowercaseword : "valuea",
+    type: enumRULETYPEWORD,
+    follows: {
+      'keyA': 'Synonym',
+      'keyB': 'CategoryB'
+    }
+  };
+  test.expect(5);
+  // act
+  var res = [];
+  ab.checkOneRule('Valueaa','valueaa', true, res, aRule, {});
+  test.equal(res && res.length, 0,true);
+  res = [];
+  ab.checkOneRule('VaLUea','valuea', true, res, aRule, {});
+  test.equal(res && res.length, 1,false);
+  res = [];
+  ab.checkOneRule('VaLUEaa','valueBa', true, res, aRule, {});
+  test.equal(res && res.length, 0,false);
+  res = [];
+  ab.checkOneRule('Valueaa','valueaa', false, res, aRule, {});
+  test.equal(res && res.length, 0,true);
+  res = [];
+  ab.checkOneRule('VaLUEaa','valueaa', false, res, aRule, {});
+  test.equal(res && res.length, 0);
+  test.done();
+};
+
+
 exports.test_checkOneRuleWithOffsetA = function (test) {
   // prepare
   var aRule =
@@ -475,7 +578,68 @@ exports.test_checkOneRuleWithOffsetA = function (test) {
 };
 
 
+exports.test_checkOneRuleWithOffsetWordA= function (test) {
+  // prepare
+  var aRule = {
+    word: 'Valuea',
+    key: 'keyA',
+    lowercaseword : "valuea",
+    type: enumRULETYPEWORD,
+    follows: {
+      'keyA': 'Synonym',
+      'keyB': 'CategoryB'
+    }
+  };
+  test.expect(4);
+  // act
+  var res = [];
+  ab.checkOneRuleWithOffset('Valuea','valuea', true, res, aRule, {});
+  test.equal(res && res.length, 1,true);
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUEa','valueB', true, res, aRule, {});
+  test.equal(res && res.length, 0,false);
+  res = [];
 
+  ab.checkOneRuleWithOffset('Valuea','valuea', false, res, aRule, {});
+  test.equal(res && res.length, 1,' exact false ');
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUEa','valuea', false, res, aRule, {});
+  test.equal(res && res.length, 1);
+  test.done();
+};
+
+exports.test_checkOneRuleWithOffsetWordAExactOnly = function (test) {
+  // prepare
+  var aRule = {
+    word: 'Valuea',
+    key: 'keyA',
+    exactOnly : true,
+    lowercaseword : "valuea",
+    type: enumRULETYPEWORD,
+    follows: {
+      'keyA': 'Synonym',
+      'keyB': 'CategoryB'
+    }
+  };
+  test.expect(5);
+  // act
+  var res = [];
+  ab.checkOneRuleWithOffset('Valueaa','valueaa', true, res, aRule, {});
+  test.equal(res && res.length, 0,true);
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUea','valuea', true, res, aRule, {});
+  test.equal(res && res.length, 1,false);
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUEaa','valueBa', true, res, aRule, {});
+  test.equal(res && res.length, 0,false);
+  res = [];
+  ab.checkOneRuleWithOffset('Valueaa','valueaa', false, res, aRule, {});
+  test.equal(res && res.length, 0,true);
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUEaa','valueaa', false, res, aRule, {});
+  test.equal(res && res.length, 0);
+  test.done();
+};
 
 
 exports.test_matchOthersFalse = function (test) {

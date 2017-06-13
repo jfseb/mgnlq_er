@@ -289,22 +289,19 @@ export function cmpByResultThenRank(a: IFMatch.ICategorizedStringRanged, b: IFMa
 
 
 
-
 export function checkOneRule(string: string, lcString : string, exact : boolean,
 res : Array<IFMatch.ICategorizedString>,
 oRule : IFModel.mRule, cntRec? : ICntRec ) {
-   if (debuglogV.enabled) {
-      debuglogV('attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
-    }
+    debuglogV(()=> 'attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
     switch (oRule.type) {
       case IFModel.EnumRuleType.WORD:
         if(!oRule.lowercaseword) {
           throw new Error('rule without a lowercase variant' + JSON.stringify(oRule, undefined, 2));
          };
-        if (exact && oRule.word === string || oRule.lowercaseword === lcString) {
-          if(debuglog.enabled) {
-            debuglog("\n!matched exact " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
-          }
+         // TODO CHECK THIS
+        if (exact && (oRule.word === string || oRule.lowercaseword === lcString)) {
+  //      if (exact && oRule.word === string || oRule.lowercaseword === lcString) {
+          debuglog(()=>"\n!matched exact " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
           res.push({
             string: string,
             matchedString: oRule.matchedString,
@@ -336,17 +333,13 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
               _ranking: (oRule._ranking || 1.0) * levenPenalty(levenmatch),
               levenmatch: levenmatch
             };
-            if(debuglog) {
-              debuglog("\n!fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
-            }
+            debuglog(()=>"\n!fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
             res.push(rec);
           }
         }
         break;
       case IFModel.EnumRuleType.REGEXP: {
-        if (debuglog.enabled) {
-          debuglog(JSON.stringify(" here regexp" + JSON.stringify(oRule, undefined, 2)))
-        }
+        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
         var m = oRule.regexp.exec(string)
         if (m) {
           res.push({
@@ -368,18 +361,14 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
 export function checkOneRuleWithOffset(string: string, lcString : string, exact : boolean,
 res : Array<IMatch.ICategorizedStringRanged>,
 oRule : IFModel.mRule, cntRec? : ICntRec ) {
-   if (debuglogV.enabled) {
-      debuglogV('attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
-    }
+    debuglogV(()=>'attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
     switch (oRule.type) {
       case IFModel.EnumRuleType.WORD:
         if(!oRule.lowercaseword) {
           throw new Error('rule without a lowercase variant' + JSON.stringify(oRule, undefined, 2));
          };
         if (exact && (oRule.word === string || oRule.lowercaseword === lcString)) {
-          if(debuglog.enabled) {
-            debuglog("\n!matched exact " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
-          }
+          debuglog(()=> "\n!matched exact " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
           res.push({
             string: string,
             matchedString: oRule.matchedString,
@@ -420,9 +409,7 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
         }
         break;
       case IFModel.EnumRuleType.REGEXP: {
-        if (debuglog.enabled) {
-          debuglog(JSON.stringify(" here regexp" + JSON.stringify(oRule, undefined, 2)))
-        }
+        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
         var m = oRule.regexp.exec(string)
         if (m) {
           res.push({
@@ -482,11 +469,9 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
   res.sort(sortByRank);
   var bestRank = 0;
   //console.log("\npiltered " + JSON.stringify(res));
-  if(debuglog.enabled) {
-    debuglog("preFilter : \n" + res.map(function(word,index) {
+    debuglog(()=> "preFilter : \n" + res.map(function(word,index) {
       return `${index} ${word._ranking}  => "${word.category}" ${word.matchedString}`;
     }).join("\n"));
-  }
   var r = res.filter(function(resx,index) {
     if(index === 0) {
       bestRank = resx._ranking;
@@ -508,9 +493,7 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
     }
     return true;
   });
-  if(debuglog.enabled) {
-      debuglog(`\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
-  }
+  debuglog(()=> `\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
   return r;
 }
 
@@ -541,11 +524,9 @@ export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRange
   res.sort(sortByRank);
   var bestRank = 0;
   //console.log("\npiltered " + JSON.stringify(res));
-  if(debuglog.enabled) {
-    debuglog(" preFilter : \n" + res.map(function(word) {
+  debuglog(()=>" preFilter : \n" + res.map(function(word) {
       return ` ${word._ranking}  => "${word.category}" ${word.matchedString} `;
     }).join("\n"));
-  }
   var r = res.filter(function(resx,index) {
     if(index === 0) {
       bestRank = resx._ranking;
@@ -573,10 +554,7 @@ export function postFilterWithOffset(res : Array<IFMatch.ICategorizedStringRange
   });
   r = dropLowerRankedEqualResult(res);
   r.sort(sortByRankThenResult);
-
-  if(debuglog.enabled) {
-      debuglog(`\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
-  }
+  debuglog(()=>`\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
   return r;
 }
 
@@ -608,7 +586,7 @@ export function categorizeString2(word: string, exact: boolean,  rules : IFMatch
     res.sort(sortByRank);
     return res;
   } else {
-    debuglog("categorize non exact" + word + " xx  " + rules.allRules.length);
+    debuglog(()=>"categorize non exact" + word + " xx  " + rules.allRules.length);
     return postFilter(categorizeString(word, exact, rules.allRules, cntRec));
   }
 }
@@ -617,7 +595,7 @@ export function categorizeString2(word: string, exact: boolean,  rules : IFMatch
 export function categorizeWordInternalWithOffsets(word: string, lcword : string, exact: boolean,  rules : IMatch.SplitRules
   , cntRec? :ICntRec): Array<IFMatch.ICategorizedStringRanged> {
 
-  debuglogM("categorize " + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact)
+  debuglogM("categorize  CWIWO" + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact)
   // simply apply all rules
   if (debuglogV.enabled )  {
     // TODO this is circular: debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
@@ -672,17 +650,13 @@ export function matchWord(oRule: IFModel.IRule, context: IFMatch.context, option
   var s2 = oRule.word.toLowerCase();
   options = options || {}
   var delta = compareContext(context, oRule.follows, oRule.key)
-  if(debuglog.enabled) {
-    debuglog(JSON.stringify(delta));
-    debuglog(JSON.stringify(options));
-  }
+  debuglogV(()=>JSON.stringify(delta));
+  debuglogV(()=>JSON.stringify(options));
   if (options.matchothers && (delta.different > 0)) {
     return undefined
   }
   var c: number = calcDistance(s2, s1);
-  if(debuglog.enabled) {
-    debuglog(" s1 <> s2 " + s1 + "<>" + s2 + "  =>: " + c);
-  }
+  debuglogV(() => " s1 <> s2 " + s1 + "<>" + s2 + "  =>: " + c);
   if (c > 0.80) {
     var res = AnyObject.assign({}, oRule.follows) as any;
     res = AnyObject.assign(res, context);
@@ -695,9 +669,7 @@ export function matchWord(oRule: IFModel.IRule, context: IFMatch.context, option
     res._weight = AnyObject.assign({}, res._weight);
     res._weight[oRule.key] = c;
     Object.freeze(res);
-    if ( debuglog.enabled) {
-      debuglog('Found one' + JSON.stringify(res, undefined, 2));
-    }
+    debuglog(()=>'Found one' + JSON.stringify(res, undefined, 2));
     return res;
   }
   return undefined;
@@ -835,7 +807,7 @@ export function categorizeWordWithOffsetWithRankCutoff(sWordGroup: string, split
   //  fuzzyCnt += 1;
   }
   // totalLen += seenIt.length;
-  debuglog(debuglog.enabled? ( `${seenIt.length} with ${seenIt.reduce( (prev,obj) => prev + (obj.rule.range ? 1 : 0),0)} ranged !`): '-');
+  debuglog(()=>( `${seenIt.length} with ${seenIt.reduce( (prev,obj) => prev + (obj.rule.range ? 1 : 0),0)} ranged !`));
 //  var cntRanged = seenIt.reduce( (prev,obj) => prev + (obj.rule.range ? 1 : 0),0);
 //  console.log(`*********** ${seenIt.length} with ${cntRanged} ranged !`);
 
@@ -940,12 +912,10 @@ export function analyzeString(sString: string, rules: IMatch.SplitRules,
   var cnt = 0;
   var fac = 1;
   var u = breakdown.breakdownString(sString, Algol.MaxSpacesPerCombinedWord);
-  if(debuglog.enabled) {
-    debuglog("here breakdown" + JSON.stringify(u));
-  }
+  debuglog(()=>"here breakdown" + JSON.stringify(u));
   //console.log(JSON.stringify(u));
   words = words || {};
-  debugperf('this many known words: ' + Object.keys(words).length);
+  debugperf(()=>'this many known words: ' + Object.keys(words).length);
   var res = [] as [[ IMatch.ICategorizedString[]] ];
   var cntRec = {};
   u.forEach(function (aBreakDownSentence) {
@@ -964,11 +934,9 @@ export function analyzeString(sString: string, rules: IMatch.SplitRules,
         res.push(categorizedSentence);
       }
   });
-  debuglog(" sentences " + u.length + " matches " + cnt + " fac: " + fac);
-  if(debuglog.enabled && u.length) {
-    debuglog("first match "+ JSON.stringify(u,undefined,2));
-  }
-  debugperf(" sentences " + u.length + " / " + res.length +  " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec,undefined,2));
+  debuglog(()=>" sentences " + u.length + " matches " + cnt + " fac: " + fac);
+  debuglog( ()=> "first match "+ JSON.stringify(u,undefined,2));
+  debugperf(()=> " sentences " + u.length + " / " + res.length +  " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec,undefined,2));
   return res;
 }
 
@@ -985,9 +953,9 @@ cntRec ? : ICntRec ) : IMatch.ICategorizedStringRanged[] {
     logger("***WARNING: Did not find any categorization for \"" + sWordGroup + "\" in sentence \""
       + sentence + "\"");
     if (sWordGroup.indexOf(" ") <= 0) {
-      debuglog("***WARNING: Did not find any categorization for primitive (!)" + sWordGroup);
+      debuglog(()=>"***WARNING: Did not find any categorization for primitive (!)" + sWordGroup);
     }
-    debuglog("***WARNING: Did not find any categorization for " + sWordGroup);
+    debuglog(()=>"***WARNING: Did not find any categorization for " + sWordGroup);
     if (!seenIt) {
       throw new Error("Expecting emtpy list, not undefined for \"" + sWordGroup + "\"")
     }
@@ -1034,7 +1002,7 @@ function copyVecMembers(u) {
 export function expandMatchArr(deep: Array<Array<any>>): Array<Array<any>> {
   var a = [];
   var line = [];
-  debuglog(debuglog.enabled ? JSON.stringify(deep) : '-');
+  debuglog(()=> JSON.stringify(deep));
   deep.forEach(function (uBreakDownLine, iIndex: number) {
     line[iIndex] = [];
     uBreakDownLine.forEach(function (aWordGroup, wgIndex: number) {
@@ -1145,11 +1113,9 @@ export function reinForce(aCategorizedArray) {
     reinForceSentence(oSentence);
   })
   aCategorizedArray.sort(Sentence.cmpRankingProduct);
-  if(debuglog.enabled) {
-    debuglog("after reinforce" + aCategorizedArray.map(function (oSentence) {
+ debuglog(()=>"after reinforce" + aCategorizedArray.map(function (oSentence) {
       return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
     }).join("\n"));
-  }
   return aCategorizedArray;
 }
 
@@ -1173,19 +1139,15 @@ export function matchRegExp(oRule: IFModel.IRule, context: IFMatch.context, opti
   }
   options = options || {}
   var delta = compareContext(context, oRule.follows, oRule.key)
-  if (debuglogV.enabled) {
-    debuglogV(JSON.stringify(delta));
-    debuglogV(JSON.stringify(options));
-  }
+  debuglogV(()=>JSON.stringify(delta));
+  debuglogV(()=>JSON.stringify(options));
   if (options.matchothers && (delta.different > 0)) {
     return undefined
   }
   var oExtractedContext = extractArgsMap(m, oRule.argsMap);
-  if (debuglogV.enabled) {
-    debuglogV("extracted args " + JSON.stringify(oRule.argsMap));
-    debuglogV("match " + JSON.stringify(m));
-    debuglogV("extracted args " + JSON.stringify(oExtractedContext));
-  }
+  debuglogV(()=>"extracted args " + JSON.stringify(oRule.argsMap));
+  debuglogV(()=>"match " + JSON.stringify(m));
+  debuglogV(()=>"extracted args " + JSON.stringify(oExtractedContext));
   var res = AnyObject.assign({}, oRule.follows) as any;
   res = AnyObject.assign(res, oExtractedContext);
   res = AnyObject.assign(res, context);
@@ -1202,16 +1164,12 @@ export function matchRegExp(oRule: IFModel.IRule, context: IFMatch.context, opti
 }
 
 export function sortByWeight(sKey: string, oContextA: IFMatch.context, oContextB: IFMatch.context): number {
-  if (debuglog.enabled) {
-    debuglogV('sorting: ' + sKey + 'invoked with\n 1:' + JSON.stringify(oContextA, undefined, 2) +
+  debuglogV(()=>'sorting: ' + sKey + 'invoked with\n 1:' + JSON.stringify(oContextA, undefined, 2) +
     " vs \n 2:" + JSON.stringify(oContextB, undefined, 2));
-  }
   var rankingA: number = parseFloat(oContextA["_ranking"] || "1");
   var rankingB: number = parseFloat(oContextB["_ranking"] || "1");
   if (rankingA !== rankingB) {
-    if(debuglog.enabled) {
-      debuglog(" rankin delta" + 100 * (rankingB - rankingA));
-    }
+    debuglog(()=> " rankin delta" + 100 * (rankingB - rankingA));
     return 100 * (rankingB - rankingA)
   }
 
@@ -1277,74 +1235,3 @@ export function augmentContext(context: IFMatch.context, aRules: Array<IFModel.I
   }
   return aRes;
 }
-
-/*
-export function insertOrdered(result: Array<IFMatch.context>, iInsertedMember: IFMatch.context, limit: number): Array<IFMatch.context> {
-  // TODO: use some weight
-  if (result.length < limit) {
-    result.push(iInsertedMember)
-  }
-  return result;
-}
-
-
-
-export function takeTopN(arr: Array<Array<IFMatch.context>>): Array<IFMatch.context> {
-  var u = arr.filter(function (innerArr) { return innerArr.length > 0 })
-
-  var res = [];
-  // shift out the top ones
-  u = u.map(function (iArr) {
-    var top = iArr.shift();
-    res = insertOrdered(res, top, 5)
-    return iArr
-  }).filter(function (innerArr: Array<IFMatch.context>): boolean { return innerArr.length > 0 });
-  // as Array<Array<IFMatch.context>>
-  return res;
-}
-*/
-
-/*
-var rm;
-
-function getRMOnce() {
-  if (!rm) {
-    rm = inputFilterRules.getRuleMap()
-  }
-  return rm;
-}
-
-export function applyRules(context: IFMatch.context): Array<IFMatch.context> {
-  var bestN: Array<IFMatch.context> = [context];
-  inputFilterRules.oKeyOrder.forEach(function (sKey: string) {
-    var bestNext: Array<Array<IFMatch.context>> = [];
-    bestN.forEach(function (oContext: IFMatch.context) {
-      if (oContext[sKey]) {
-        debuglog('** applying rules for ' + sKey)
-        var res = augmentContext(oContext, getRMOnce()[sKey] || [])
-        debuglog(debuglog.enabled ? ('** result for ' + sKey + ' = ' + JSON.stringify(res, undefined, 2)): '-');
-        bestNext.push(res || [])
-      } else {
-        // rule not relevant
-        bestNext.push([oContext]);
-      }
-    })
-    bestN = takeTopN(bestNext);
-  });
-  return bestN
-}
-
-
-export function applyRulesPickFirst(context: IFMatch.context): IFMatch.context {
-  var r = applyRules(context);
-  return r && r[0];
-}
-
-*/
-
-/**
- * Decide whether to requery for a contet
- */
-//export function decideOnReQuery(context: IFMatch.context): Array<IFMatch.context> {
-//  return []
-//}

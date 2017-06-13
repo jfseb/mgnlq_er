@@ -9,9 +9,12 @@ which are homogeneous in one domain
 The word index is built by mgnlq_model
 
 usage:
->
->  var erbase = require('mgnlq_er');
->  var words = {}; // a cache!
->  var res = Erbase.processString('orbit of the earth', theModel.rules, words);
+```javascript
+  var erbase = require('mgnlq_er');
+  var words = {}; // a cache!
+  var res = Erbase.processString('orbit of the earth', theModel.rules, words);
+```
 
+
+0.0.4 -> single result in checkOneRule
 

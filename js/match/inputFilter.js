@@ -212,19 +212,17 @@ function cmpByResultThenRank(a, b) {
 }
 exports.cmpByResultThenRank = cmpByResultThenRank;
 function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
-    if (debuglogV.enabled) {
-        debuglogV('attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
-    }
+    debuglogV(function () { return 'attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\""; });
     switch (oRule.type) {
         case mgnlq_model_1.IFModel.EnumRuleType.WORD:
             if (!oRule.lowercaseword) {
                 throw new Error('rule without a lowercase variant' + JSON.stringify(oRule, undefined, 2));
             }
             ;
-            if (exact && oRule.word === string || oRule.lowercaseword === lcString) {
-                if (debuglog.enabled) {
-                    debuglog("\n!matched exact " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category);
-                }
+            // TODO CHECK THIS
+            if (exact && (oRule.word === string || oRule.lowercaseword === lcString)) {
+                //      if (exact && oRule.word === string || oRule.lowercaseword === lcString) {
+                debuglog(function () { return "\n!matched exact " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category; });
                 res.push({
                     string: string,
                     matchedString: oRule.matchedString,
@@ -255,18 +253,14 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
                         _ranking: (oRule._ranking || 1.0) * levenPenalty(levenmatch),
                         levenmatch: levenmatch
                     };
-                    if (debuglog) {
-                        debuglog("\n!fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category);
-                    }
+                    debuglog(function () { return "\n!fuzzy " + (levenmatch).toFixed(3) + " " + rec._ranking.toFixed(3) + "  " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category; });
                     res.push(rec);
                 }
             }
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP:
             {
-                if (debuglog.enabled) {
-                    debuglog(JSON.stringify(" here regexp" + JSON.stringify(oRule, undefined, 2)));
-                }
+                debuglog(function () { return " here regexp" + JSON.stringify(oRule, undefined, 2); });
                 var m = oRule.regexp.exec(string);
                 if (m) {
                     res.push({
@@ -284,9 +278,7 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
 }
 exports.checkOneRule = checkOneRule;
 function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
-    if (debuglogV.enabled) {
-        debuglogV('attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\"");
-    }
+    debuglogV(function () { return 'attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\""; });
     switch (oRule.type) {
         case mgnlq_model_1.IFModel.EnumRuleType.WORD:
             if (!oRule.lowercaseword) {
@@ -294,9 +286,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
             }
             ;
             if (exact && (oRule.word === string || oRule.lowercaseword === lcString)) {
-                if (debuglog.enabled) {
-                    debuglog("\n!matched exact " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category);
-                }
+                debuglog(function () { return "\n!matched exact " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category; });
                 res.push({
                     string: string,
                     matchedString: oRule.matchedString,
@@ -337,9 +327,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP:
             {
-                if (debuglog.enabled) {
-                    debuglog(JSON.stringify(" here regexp" + JSON.stringify(oRule, undefined, 2)));
-                }
+                debuglog(function () { return " here regexp" + JSON.stringify(oRule, undefined, 2); });
                 var m = oRule.regexp.exec(string);
                 if (m) {
                     res.push({
@@ -391,11 +379,9 @@ function postFilter(res) {
     res.sort(sortByRank);
     var bestRank = 0;
     //console.log("\npiltered " + JSON.stringify(res));
-    if (debuglog.enabled) {
-        debuglog("preFilter : \n" + res.map(function (word, index) {
-            return index + " " + word._ranking + "  => \"" + word.category + "\" " + word.matchedString;
-        }).join("\n"));
-    }
+    debuglog(function () { return "preFilter : \n" + res.map(function (word, index) {
+        return index + " " + word._ranking + "  => \"" + word.category + "\" " + word.matchedString;
+    }).join("\n"); });
     var r = res.filter(function (resx, index) {
         if (index === 0) {
             bestRank = resx._ranking;
@@ -416,9 +402,7 @@ function postFilter(res) {
         }
         return true;
     });
-    if (debuglog.enabled) {
-        debuglog("\nfiltered " + r.length + "/" + res.length + JSON.stringify(r));
-    }
+    debuglog(function () { return "\nfiltered " + r.length + "/" + res.length + JSON.stringify(r); });
     return r;
 }
 exports.postFilter = postFilter;
@@ -446,11 +430,9 @@ function postFilterWithOffset(res) {
     res.sort(sortByRank);
     var bestRank = 0;
     //console.log("\npiltered " + JSON.stringify(res));
-    if (debuglog.enabled) {
-        debuglog(" preFilter : \n" + res.map(function (word) {
-            return " " + word._ranking + "  => \"" + word.category + "\" " + word.matchedString + " ";
-        }).join("\n"));
-    }
+    debuglog(function () { return " preFilter : \n" + res.map(function (word) {
+        return " " + word._ranking + "  => \"" + word.category + "\" " + word.matchedString + " ";
+    }).join("\n"); });
     var r = res.filter(function (resx, index) {
         if (index === 0) {
             bestRank = resx._ranking;
@@ -477,9 +459,7 @@ function postFilterWithOffset(res) {
     });
     r = dropLowerRankedEqualResult(res);
     r.sort(sortByRankThenResult);
-    if (debuglog.enabled) {
-        debuglog("\nfiltered " + r.length + "/" + res.length + JSON.stringify(r));
-    }
+    debuglog(function () { return "\nfiltered " + r.length + "/" + res.length + JSON.stringify(r); });
     return r;
 }
 exports.postFilterWithOffset = postFilterWithOffset;
@@ -509,13 +489,13 @@ function categorizeString2(word, exact, rules, cntRec) {
         return res;
     }
     else {
-        debuglog("categorize non exact" + word + " xx  " + rules.allRules.length);
+        debuglog(function () { return "categorize non exact" + word + " xx  " + rules.allRules.length; });
         return postFilter(categorizeString(word, exact, rules.allRules, cntRec));
     }
 }
 exports.categorizeString2 = categorizeString2;
 function categorizeWordInternalWithOffsets(word, lcword, exact, rules, cntRec) {
-    debuglogM("categorize " + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact);
+    debuglogM("categorize  CWIWO" + lcword + " with offset!!!!!!!!!!!!!!!!!" + exact);
     // simply apply all rules
     if (debuglogV.enabled) {
         // TODO this is circular: debuglogV("rules : " + JSON.stringify(rules,undefined, 2));
@@ -569,17 +549,13 @@ function matchWord(oRule, context, options) {
     var s2 = oRule.word.toLowerCase();
     options = options || {};
     var delta = compareContext(context, oRule.follows, oRule.key);
-    if (debuglog.enabled) {
-        debuglog(JSON.stringify(delta));
-        debuglog(JSON.stringify(options));
-    }
+    debuglogV(function () { return JSON.stringify(delta); });
+    debuglogV(function () { return JSON.stringify(options); });
     if (options.matchothers && (delta.different > 0)) {
         return undefined;
     }
     var c = calcDistance(s2, s1);
-    if (debuglog.enabled) {
-        debuglog(" s1 <> s2 " + s1 + "<>" + s2 + "  =>: " + c);
-    }
+    debuglogV(function () { return " s1 <> s2 " + s1 + "<>" + s2 + "  =>: " + c; });
     if (c > 0.80) {
         var res = AnyObject.assign({}, oRule.follows);
         res = AnyObject.assign(res, context);
@@ -592,9 +568,7 @@ function matchWord(oRule, context, options) {
         res._weight = AnyObject.assign({}, res._weight);
         res._weight[oRule.key] = c;
         Object.freeze(res);
-        if (debuglog.enabled) {
-            debuglog('Found one' + JSON.stringify(res, undefined, 2));
-        }
+        debuglog(function () { return 'Found one' + JSON.stringify(res, undefined, 2); });
         return res;
     }
     return undefined;
@@ -726,7 +700,7 @@ function categorizeWordWithOffsetWithRankCutoff(sWordGroup, splitRules, cntRec) 
         //  fuzzyCnt += 1;
     }
     // totalLen += seenIt.length;
-    debuglog(debuglog.enabled ? (seenIt.length + " with " + seenIt.reduce(function (prev, obj) { return prev + (obj.rule.range ? 1 : 0); }, 0) + " ranged !") : '-');
+    debuglog(function () { return (seenIt.length + " with " + seenIt.reduce(function (prev, obj) { return prev + (obj.rule.range ? 1 : 0); }, 0) + " ranged !"); });
     //  var cntRanged = seenIt.reduce( (prev,obj) => prev + (obj.rule.range ? 1 : 0),0);
     //  console.log(`*********** ${seenIt.length} with ${cntRanged} ranged !`);
     seenIt = exports.RankWord.takeFirstN(seenIt, Algol.Top_N_WordCategorizations);
@@ -818,12 +792,10 @@ function analyzeString(sString, rules, words) {
     var cnt = 0;
     var fac = 1;
     var u = mgnlq_model_2.BreakDown.breakdownString(sString, Algol.MaxSpacesPerCombinedWord);
-    if (debuglog.enabled) {
-        debuglog("here breakdown" + JSON.stringify(u));
-    }
+    debuglog(function () { return "here breakdown" + JSON.stringify(u); });
     //console.log(JSON.stringify(u));
     words = words || {};
-    debugperf('this many known words: ' + Object.keys(words).length);
+    debugperf(function () { return 'this many known words: ' + Object.keys(words).length; });
     var res = [];
     var cntRec = {};
     u.forEach(function (aBreakDownSentence) {
@@ -842,11 +814,9 @@ function analyzeString(sString, rules, words) {
             res.push(categorizedSentence);
         }
     });
-    debuglog(" sentences " + u.length + " matches " + cnt + " fac: " + fac);
-    if (debuglog.enabled && u.length) {
-        debuglog("first match " + JSON.stringify(u, undefined, 2));
-    }
-    debugperf(" sentences " + u.length + " / " + res.length + " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec, undefined, 2));
+    debuglog(function () { return " sentences " + u.length + " matches " + cnt + " fac: " + fac; });
+    debuglog(function () { return "first match " + JSON.stringify(u, undefined, 2); });
+    debugperf(function () { return " sentences " + u.length + " / " + res.length + " matches " + cnt + " fac: " + fac + " rec : " + JSON.stringify(cntRec, undefined, 2); });
     return res;
 }
 exports.analyzeString = analyzeString;
@@ -861,9 +831,9 @@ function categorizeAWordWithOffsets(sWordGroup, rules, sentence, words, cntRec) 
         logger("***WARNING: Did not find any categorization for \"" + sWordGroup + "\" in sentence \""
             + sentence + "\"");
         if (sWordGroup.indexOf(" ") <= 0) {
-            debuglog("***WARNING: Did not find any categorization for primitive (!)" + sWordGroup);
+            debuglog(function () { return "***WARNING: Did not find any categorization for primitive (!)" + sWordGroup; });
         }
-        debuglog("***WARNING: Did not find any categorization for " + sWordGroup);
+        debuglog(function () { return "***WARNING: Did not find any categorization for " + sWordGroup; });
         if (!seenIt) {
             throw new Error("Expecting emtpy list, not undefined for \"" + sWordGroup + "\"");
         }
@@ -896,7 +866,7 @@ function copyVecMembers(u) {
 function expandMatchArr(deep) {
     var a = [];
     var line = [];
-    debuglog(debuglog.enabled ? JSON.stringify(deep) : '-');
+    debuglog(function () { return JSON.stringify(deep); });
     deep.forEach(function (uBreakDownLine, iIndex) {
         line[iIndex] = [];
         uBreakDownLine.forEach(function (aWordGroup, wgIndex) {
@@ -1003,11 +973,9 @@ function reinForce(aCategorizedArray) {
         reinForceSentence(oSentence);
     });
     aCategorizedArray.sort(Sentence.cmpRankingProduct);
-    if (debuglog.enabled) {
-        debuglog("after reinforce" + aCategorizedArray.map(function (oSentence) {
-            return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
-        }).join("\n"));
-    }
+    debuglog(function () { return "after reinforce" + aCategorizedArray.map(function (oSentence) {
+        return Sentence.rankingProduct(oSentence) + ":" + JSON.stringify(oSentence);
+    }).join("\n"); });
     return aCategorizedArray;
 }
 exports.reinForce = reinForce;
@@ -1028,19 +996,15 @@ function matchRegExp(oRule, context, options) {
     }
     options = options || {};
     var delta = compareContext(context, oRule.follows, oRule.key);
-    if (debuglogV.enabled) {
-        debuglogV(JSON.stringify(delta));
-        debuglogV(JSON.stringify(options));
-    }
+    debuglogV(function () { return JSON.stringify(delta); });
+    debuglogV(function () { return JSON.stringify(options); });
     if (options.matchothers && (delta.different > 0)) {
         return undefined;
     }
     var oExtractedContext = extractArgsMap(m, oRule.argsMap);
-    if (debuglogV.enabled) {
-        debuglogV("extracted args " + JSON.stringify(oRule.argsMap));
-        debuglogV("match " + JSON.stringify(m));
-        debuglogV("extracted args " + JSON.stringify(oExtractedContext));
-    }
+    debuglogV(function () { return "extracted args " + JSON.stringify(oRule.argsMap); });
+    debuglogV(function () { return "match " + JSON.stringify(m); });
+    debuglogV(function () { return "extracted args " + JSON.stringify(oExtractedContext); });
     var res = AnyObject.assign({}, oRule.follows);
     res = AnyObject.assign(res, oExtractedContext);
     res = AnyObject.assign(res, context);
@@ -1057,16 +1021,12 @@ function matchRegExp(oRule, context, options) {
 }
 exports.matchRegExp = matchRegExp;
 function sortByWeight(sKey, oContextA, oContextB) {
-    if (debuglog.enabled) {
-        debuglogV('sorting: ' + sKey + 'invoked with\n 1:' + JSON.stringify(oContextA, undefined, 2) +
-            " vs \n 2:" + JSON.stringify(oContextB, undefined, 2));
-    }
+    debuglogV(function () { return 'sorting: ' + sKey + 'invoked with\n 1:' + JSON.stringify(oContextA, undefined, 2) +
+        " vs \n 2:" + JSON.stringify(oContextB, undefined, 2); });
     var rankingA = parseFloat(oContextA["_ranking"] || "1");
     var rankingB = parseFloat(oContextB["_ranking"] || "1");
     if (rankingA !== rankingB) {
-        if (debuglog.enabled) {
-            debuglog(" rankin delta" + 100 * (rankingB - rankingA));
-        }
+        debuglog(function () { return " rankin delta" + 100 * (rankingB - rankingA); });
         return 100 * (rankingB - rankingA);
     }
     var weightA = oContextA["_weight"] && oContextA["_weight"][sKey] || 0;
@@ -1122,73 +1082,5 @@ function augmentContext(context, aRules) {
     return aRes;
 }
 exports.augmentContext = augmentContext;
-/*
-export function insertOrdered(result: Array<IFMatch.context>, iInsertedMember: IFMatch.context, limit: number): Array<IFMatch.context> {
-  // TODO: use some weight
-  if (result.length < limit) {
-    result.push(iInsertedMember)
-  }
-  return result;
-}
-
-
-
-export function takeTopN(arr: Array<Array<IFMatch.context>>): Array<IFMatch.context> {
-  var u = arr.filter(function (innerArr) { return innerArr.length > 0 })
-
-  var res = [];
-  // shift out the top ones
-  u = u.map(function (iArr) {
-    var top = iArr.shift();
-    res = insertOrdered(res, top, 5)
-    return iArr
-  }).filter(function (innerArr: Array<IFMatch.context>): boolean { return innerArr.length > 0 });
-  // as Array<Array<IFMatch.context>>
-  return res;
-}
-*/
-/*
-var rm;
-
-function getRMOnce() {
-  if (!rm) {
-    rm = inputFilterRules.getRuleMap()
-  }
-  return rm;
-}
-
-export function applyRules(context: IFMatch.context): Array<IFMatch.context> {
-  var bestN: Array<IFMatch.context> = [context];
-  inputFilterRules.oKeyOrder.forEach(function (sKey: string) {
-    var bestNext: Array<Array<IFMatch.context>> = [];
-    bestN.forEach(function (oContext: IFMatch.context) {
-      if (oContext[sKey]) {
-        debuglog('** applying rules for ' + sKey)
-        var res = augmentContext(oContext, getRMOnce()[sKey] || [])
-        debuglog(debuglog.enabled ? ('** result for ' + sKey + ' = ' + JSON.stringify(res, undefined, 2)): '-');
-        bestNext.push(res || [])
-      } else {
-        // rule not relevant
-        bestNext.push([oContext]);
-      }
-    })
-    bestN = takeTopN(bestNext);
-  });
-  return bestN
-}
-
-
-export function applyRulesPickFirst(context: IFMatch.context): IFMatch.context {
-  var r = applyRules(context);
-  return r && r[0];
-}
-
-*/
-/**
- * Decide whether to requery for a contet
- */
-//export function decideOnReQuery(context: IFMatch.context): Array<IFMatch.context> {
-//  return []
-//}
 
 //# sourceMappingURL=inputFilter.js.map
