@@ -377,37 +377,39 @@ function categorizeSingleWordWithOffset(word, lcword, exact, oRules, cntRec) {
     return res;
 }
 exports.categorizeSingleWordWithOffset = categorizeSingleWordWithOffset;
-function postFilter(res) {
-    res.sort(sortByRank);
-    var bestRank = 0;
-    //console.log("\npiltered " + JSON.stringify(res));
-    debuglog(function () { return "preFilter : \n" + res.map(function (word, index) {
-        return index + " " + word._ranking + "  => \"" + word.category + "\" " + word.matchedString;
-    }).join("\n"); });
-    var r = res.filter(function (resx, index) {
-        if (index === 0) {
-            bestRank = resx._ranking;
-            return true;
-        }
-        // 1-0.9 = 0.1
-        // 1- 0.93 = 0.7
-        // 1/7
-        var delta = bestRank / resx._ranking;
-        if ((resx.matchedString === res[index - 1].matchedString)
-            && (resx.category === res[index - 1].category)) {
-            debuglog('postfilter ignoring bitinidex!!!');
-            return false;
-        }
-        //console.log("\n delta for " + delta + "  " + resx._ranking);
-        if (resx.levenmatch && (delta > 1.03)) {
-            return false;
-        }
-        return true;
-    });
-    debuglog(function () { return "\nfiltered " + r.length + "/" + res.length + JSON.stringify(r); });
-    return r;
+/*
+export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMatch.ICategorizedString> {
+  res.sort(sortByRank);
+  var bestRank = 0;
+  //console.log("\npiltered " + JSON.stringify(res));
+    debuglog(()=> "preFilter : \n" + res.map(function(word,index) {
+      return `${index} ${word._ranking}  => "${word.category}" ${word.matchedString}`;
+    }).join("\n"));
+  var r = res.filter(function(resx,index) {
+    if(index === 0) {
+      bestRank = resx._ranking;
+      return true;
+    }
+    // 1-0.9 = 0.1
+    // 1- 0.93 = 0.7
+    // 1/7
+    var delta = bestRank / resx._ranking;
+    if((resx.matchedString === res[index-1].matchedString)
+      && (resx.category === res[index-1].category)
+      ) {
+        debuglog('postfilter ignoring bitinidex!!!');
+      return false;
+    }
+    //console.log("\n delta for " + delta + "  " + resx._ranking);
+    if (resx.levenmatch && (delta > 1.03)) {
+      return false;
+    }
+    return true;
+  });
+  debuglog(()=> `\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
+  return r;
 }
-exports.postFilter = postFilter;
+*/
 function dropLowerRankedEqualResult(res) {
     res.sort(cmpByResultThenRank);
     return res.filter(function (resx, index) {
@@ -756,27 +758,31 @@ export function filterRemovingUncategorized(arr: IFMatch.ICategorizedString[][][
 }
 */
 function categorizeAWord(sWordGroup, rules, sentence, words, cntRec) {
-    var seenIt = words[sWordGroup];
-    if (seenIt === undefined) {
+    return categorizeAWordWithOffsets(sWordGroup, rules, sentence, words).filter(function (r) { return !r.span && !r.rule.range; });
+    /* consider removing the ranged stuff  */
+    /*
+      var seenIt = words[sWordGroup];
+      if (seenIt === undefined) {
         //seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
-        seenIt = categorizeWordWithOffsetWithRankCutoff(sWordGroup, rules, cntRec);
+        seenIt = categorizeWordWithOffsetWithRankCutoff(sWordGroup,rules,cntRec);
         utils.deepFreeze(seenIt);
         words[sWordGroup] = seenIt;
-    }
-    if (!seenIt || seenIt.length === 0) {
+      }
+      if (!seenIt || seenIt.length === 0) {
         logger("***WARNING: Did not find any categorization for \"" + sWordGroup + "\" in sentence \""
-            + sentence + "\"");
+          + sentence + "\"");
         if (sWordGroup.indexOf(" ") <= 0) {
-            debuglog("***WARNING: Did not find any categorization for primitive (!)" + sWordGroup);
+          debuglog("***WARNING: Did not find any categorization for primitive (!)" + sWordGroup);
         }
         debuglog("***WARNING: Did not find any categorization for " + sWordGroup);
         if (!seenIt) {
-            throw new Error("Expecting emtpy list, not undefined for \"" + sWordGroup + "\"");
+          throw new Error("Expecting emtpy list, not undefined for \"" + sWordGroup + "\"")
         }
-        words[sWordGroup] = [];
+        words[sWordGroup] = []
         return [];
-    }
-    return utils.cloneDeep(seenIt);
+      }
+      return utils.cloneDeep(seenIt);
+      */
 }
 exports.categorizeAWord = categorizeAWord;
 /**

@@ -466,7 +466,7 @@ export function categorizeSingleWordWithOffset(word: string, lcword : string, ex
   return res;
 }
 
-
+/*
 export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMatch.ICategorizedString> {
   res.sort(sortByRank);
   var bestRank = 0;
@@ -498,6 +498,7 @@ export function postFilter(res : Array<IFMatch.ICategorizedString>) : Array<IFMa
   debuglog(()=> `\nfiltered ${r.length}/${res.length}` + JSON.stringify(r));
   return r;
 }
+*/
 
 
 export function dropLowerRankedEqualResult(res : Array<IFMatch.ICategorizedStringRanged>) : Array<IFMatch.ICategorizedStringRanged> {
@@ -871,7 +872,14 @@ export function filterRemovingUncategorized(arr: IFMatch.ICategorizedString[][][
 */
 
 export function categorizeAWord(sWordGroup: string, rules: IMatch.SplitRules, sentence: string, words: { [key: string]: Array<IFMatch.ICategorizedString>},
-cntRec ? : ICntRec ) : IMatch.ICategorizedString[] {
+cntRec ? : ICntRec ) : IMatch.ICategorizedStringRanged[] {
+  return categorizeAWordWithOffsets(sWordGroup, rules, sentence, words).filter(
+     r => !r.span && !r.rule.range
+  );
+/* consider removing the ranged stuff  */
+
+
+/*
   var seenIt = words[sWordGroup];
   if (seenIt === undefined) {
     //seenIt = categorizeWordWithRankCutoff(sWordGroup, rules, cntRec);
@@ -893,6 +901,7 @@ cntRec ? : ICntRec ) : IMatch.ICategorizedString[] {
     return [];
   }
   return utils.cloneDeep(seenIt);
+  */
 }
 
 

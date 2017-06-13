@@ -15,8 +15,6 @@ const ErIndex = require(root + '/match/erindex.js');
 
 const utils = require('abot_utils');
 
-//const inputFiterRules = require(root + '/match/inputFilterRules.js');
-
 const InputFilter = require(root + '/match/inputFilter.js');
 
 const Model = require('mgnlq_model').Model;

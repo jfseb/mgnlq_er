@@ -17,8 +17,6 @@ const InputFilter = inputFilter;
 const utils = require('abot_utils');
 const Algol = require(root + '/match/algol.js');
 
-const inputFilterRules = require(root + '/match/inputFilterRules.js');
-
 const Model = require('mgnlq_model').Model;
 const MongoUtils = require('mgnlq_model').MongoUtils;
 
@@ -1284,7 +1282,7 @@ function releaseRules(mongoose) {
 
 exports.testCategorizeAWordWithOffest = function (test) {
     getRules().then( (args) => { var [rules,mongoose] = args;
- var res = inputFilter.categorizeAWordWithOffsets('ApplicationComponent', rules,  'not relevant', {}, {});
+ var res = inputFilter.categorizeAWord('ApplicationComponent', rules,  'not relevant', {}, {});
   test.deepEqual(res, [ { string: 'ApplicationComponent',
     matchedString: 'ApplicationComponent',
     category: 'category',
@@ -1332,6 +1330,130 @@ exports.testCategorizeAWordWithOffest = function (test) {
   releaseRules(mongoose);
     });
 };
+
+
+exports.testCategorizeAWordWithOffest = function (test) {
+    getRules().then( (args) => { var [rules,mongoose] = args;
+ var res = inputFilter.categorizeAWord('Fiori', rules,  'not relevant', {}, {});
+
+ var res2 = inputFilter.categorizeAWordWithOffsets('Fiori', rules,  'not relevant', {}, {});
+
+  test.deepEqual(res, []);
+
+  test.deepEqual(res2, [ { string: 'Fiori',
+    matchedString: 'AppName',
+    category: 'category',
+    rule:
+     { category: 'category',
+       matchedString: 'AppName',
+       bitindex: 2,
+       bitSentenceAnd: 2,
+       wordType: 'C',
+       word: 'fiori',
+       type: 0,
+       lowercaseword: 'fiori',
+       _ranking: 0.95,
+       range:
+        { low: 0,
+          high: 1,
+          rule:
+           { category: 'category',
+             matchedString: 'AppName',
+             type: 0,
+             word: 'Fiori App',
+             bitindex: 2,
+             bitSentenceAnd: 2,
+             wordType: 'C',
+             _ranking: 0.95,
+             lowercaseword: 'fiori app' } } },
+    _ranking: 0.95 },
+  { string: 'Fiori',
+    matchedString: 'AppName',
+    category: 'category',
+    rule:
+     { category: 'category',
+       matchedString: 'AppName',
+       bitindex: 16,
+       bitSentenceAnd: 16,
+       wordType: 'F',
+       word: 'fiori',
+       type: 0,
+       lowercaseword: 'fiori',
+       _ranking: 0.95,
+       range:
+        { low: 0,
+          high: 1,
+          rule:
+           { category: 'category',
+             matchedString: 'AppName',
+             type: 0,
+             word: 'Fiori App',
+             bitindex: 16,
+             bitSentenceAnd: 16,
+             wordType: 'F',
+             _ranking: 0.95,
+             lowercaseword: 'fiori app' } } },
+    _ranking: 0.95 },
+  { string: 'Fiori',
+    matchedString: 'FioriBOM',
+    category: 'domain',
+    rule:
+     { category: 'domain',
+       matchedString: 'FioriBOM',
+       bitindex: 2,
+       bitSentenceAnd: 2,
+       wordType: 'D',
+       word: 'fiori',
+       type: 0,
+       lowercaseword: 'fiori',
+       _ranking: 0.95,
+       range:
+        { low: 0,
+          high: 1,
+          rule:
+           { category: 'domain',
+             matchedString: 'FioriBOM',
+             type: 0,
+             word: 'fiori bom',
+             bitindex: 2,
+             bitSentenceAnd: 2,
+             wordType: 'D',
+             _ranking: 0.95,
+             lowercaseword: 'fiori bom' } } },
+    _ranking: 0.95 },
+  { string: 'Fiori',
+    matchedString: 'FioriBOM',
+    category: 'domain',
+    rule:
+     { category: 'domain',
+       matchedString: 'FioriBOM',
+       bitindex: 16,
+       bitSentenceAnd: 16,
+       wordType: 'F',
+       word: 'fiori',
+       type: 0,
+       lowercaseword: 'fiori',
+       _ranking: 0.95,
+       range:
+        { low: 0,
+          high: 1,
+          rule:
+           { category: 'domain',
+             matchedString: 'FioriBOM',
+             type: 0,
+             word: 'fiori bom',
+             bitindex: 16,
+             bitSentenceAnd: 16,
+             wordType: 'F',
+             _ranking: 0.95,
+             lowercaseword: 'fiori bom' } } },
+    _ranking: 0.95 } ], 'contains ranged');
+
+  test.done();
+  releaseRules(mongoose);
+    });
+};
+
 
 
 
@@ -1446,38 +1568,6 @@ exports.testCategorizeStringBadRule = function (test) {
   test.done();
 };
 */
-
-var sampleRules = Model.splitRules(inputFilterRules.assureLowerCaseWord([
-  {
-    type: 0,
-    word: 'ab',
-    matchedString: 'ab',
-    category: 'CAT1'
-  },
-  {
-    type: 0,
-    word: 'bc',
-    matchedString: 'bc',
-    category: 'CAT2'
-  },
-  {
-    type: 0,
-    word: 'cat1',
-    matchedString: 'CAT2',
-    category: 'category'
-  },
-  {
-    type: 0,
-    word: 'cat2',
-    matchedString: 'CAT2',
-    category: 'category'
-  },
-  {
-    type: 1,
-    regexp: /^.*$/,
-    category: 'unknown'
-  }
-]));
 
 function filterRules(res) {
   var res = res.map( wordexp => wordexp.map( rx => rx.map(
