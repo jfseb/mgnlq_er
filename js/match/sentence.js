@@ -73,6 +73,13 @@ function cutoffSentenceAtRatio(sentences) {
     return sentences.slice(0, i);
 }
 exports.cutoffSentenceAtRatio = cutoffSentenceAtRatio;
+/*
+export function simplifySentence(res : IMatch.ICategorizedStringRanged[][]) : string[][] {
+  return res.map(function (r) {
+    return r.map(word => { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : '') })
+  });
+}
+*/
 function dumpNice(sentence, fn) {
     var result = [];
     sentence.forEach(function (oWord, index) {

@@ -271,20 +271,7 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
               })
             }
           }*/
-            //break;
         }
-        /*
-        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-        var m = oRule.regexp.exec(string)
-        if (m) {
-          res.push({
-            string: string,
-            matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-            category: oRule.category,
-            _ranking: oRule._ranking || 1.0
-          })
-        }
-      }*/
         //break;
         default:
             throw new Error("unknown type" + JSON.stringify(oRule, undefined, 2));
@@ -340,7 +327,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
             }
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP: {
-            throw Error('REGEXP not supported');
+            throw new Error('REGEXP not supported');
             /*
             debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
             var m = oRule.regexp.exec(string)
@@ -357,21 +344,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
             break;
             */
         }
-        /*
-        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-        var m = oRule.regexp.exec(string)
-        if (m) {
-          res.push({
-            string: string,
-            rule: oRule,
-            matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-            category: oRule.category,
-            _ranking: oRule._ranking || 1.0
-          })
-        }
-      }
-        break;
-        */
+        //break;
         default:
             throw new Error("unknown type" + JSON.stringify(oRule, undefined, 2));
     }

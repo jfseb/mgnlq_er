@@ -468,11 +468,5 @@ function processString2(query, rules, words) {
     return aSentences;
 }
 exports.processString2 = processString2;
-function simplifySentence(res) {
-    return res.map(function (r) {
-        return r.map(function (word) { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : ''); });
-    });
-}
-exports.simplifySentence = simplifySentence;
 
 //# sourceMappingURL=erbase.js.map

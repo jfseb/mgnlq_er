@@ -79,6 +79,14 @@ export function cutoffSentenceAtRatio(sentences : IMatch.ISentence[]) {
   return sentences.slice(0,i);
 }
 
+/*
+export function simplifySentence(res : IMatch.ICategorizedStringRanged[][]) : string[][] {
+  return res.map(function (r) {
+    return r.map(word => { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : '') })
+  });
+}
+*/
+
 export function dumpNice(sentence : IMatch.ISentence, fn?: any) : string {
   var result = [];
     sentence.forEach(function(oWord, index) {

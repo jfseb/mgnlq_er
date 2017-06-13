@@ -533,8 +533,3 @@ export function processString2(query: string, rules: IFModel.SplitRules,
 }
 
 
-export function simplifySentence(res) {
-  return res.map(function (r) {
-    return r.map(word => { return word.string + '=>' + word.matchedString + '/' + word.category + (word.span ? '/' + word.span : '') })
-  });
-}

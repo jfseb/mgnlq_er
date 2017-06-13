@@ -352,6 +352,7 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
           })
         }
       }*/
+      }
       //break;
       default:
         throw new Error("unknown type" + JSON.stringify(oRule, undefined, 2))
@@ -411,7 +412,7 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
         }
         break;
       case IFModel.EnumRuleType.REGEXP: {
-        throw Error('REGEXP not supported');
+        throw new Error('REGEXP not supported');
         /*
         debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
         var m = oRule.regexp.exec(string)
@@ -427,6 +428,8 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
       }
         break;
         */
+      }
+      //break;
       default:
         throw new Error("unknown type" + JSON.stringify(oRule, undefined, 2))
     }
