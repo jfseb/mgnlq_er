@@ -1,4 +1,3 @@
-<<<<<<< b36d95859bcd8bd6e4b9738561cd736e54a5af9c
 # mgnlq_er[![Build Status](https://travis-ci.org/jfseb/mgnlq_er.svg?branch=master)](https://travis-ci.org/jfseb/mgnlq_er) [![Coverage Status](https://coveralls.io/repos/github/jfseb/mgnlq_er/badge.svg)](https://coveralls.io/github/jfseb/mgnlq_er)
 Entity recognition for mongo nlq
 
