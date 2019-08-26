@@ -45,5 +45,21 @@ exports.Word = {
         return exports.Category.isDomain(word.category);
     }
 };
+exports.WordType = {
+    CAT_CATEGORY: "category",
+    CAT_DOMAIN: "domain",
+    CAT_FILLER: "filler",
+    CAT_TOOL: "tool",
+    _aCatFillers: ["filler"],
+    isDomain: function (sCategory) {
+        return sCategory === exports.Category.CAT_DOMAIN;
+    },
+    isCategory: function (sCategory) {
+        return sCategory === exports.Category.CAT_CATEGORY;
+    },
+    isFiller: function (sCategory) {
+        return exports.Category._aCatFillers.indexOf(sCategory) >= 0;
+    }
+};
 
 //# sourceMappingURL=word.js.map

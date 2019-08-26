@@ -29,6 +29,7 @@
     ],
     "files": [
         "src/match/algol.ts",
+        "src/match/charsequence.ts",
         "src/match/erbase.ts",
         "src/match/erindex.ts",
         "src/match/ererror.ts",

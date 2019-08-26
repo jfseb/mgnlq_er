@@ -11,6 +11,8 @@ export { Sentence };
 //export { InputFilterRules };
 import * as InputFilter from "./match/inputFilter";
 export { InputFilter };
+import * as CharSequence from "./match/charsequence";
+export { CharSequence };
 import * as Word from "./match/word";
 export { Word };
 import * as IFErBase from "./match/iferbase";

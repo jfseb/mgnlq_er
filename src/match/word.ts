@@ -53,3 +53,21 @@ export const Word = {
     return Category.isDomain(word.category);
   }
 };
+
+
+export const WordType = {
+  CAT_CATEGORY :  "category",
+  CAT_DOMAIN :  "domain",
+  CAT_FILLER : "filler",
+  CAT_TOOL : "tool",
+  _aCatFillers : ["filler"],
+  isDomain : function(sCategory : string )  : boolean{
+    return sCategory === Category.CAT_DOMAIN;
+  },
+  isCategory : function(sCategory : string )  : boolean{
+    return sCategory === Category.CAT_CATEGORY;
+  },
+  isFiller: function(sCategory : string) : boolean {
+    return Category._aCatFillers.indexOf(sCategory) >= 0;
+  }
+}

@@ -10,6 +10,7 @@
 
 
 import * as WordMatch from './inputFilter';
+import * as CharSequence from './charsequence';
 
 import * as debug from 'debugf';
 
@@ -44,6 +45,7 @@ import * as Sentence from './sentence';
 import * as Word from './word';
 
 import * as Algol from './algol';
+import { AssertionError } from 'assert';
 
 
 //import * as Match from './match';
@@ -435,7 +437,7 @@ export function processString(query: string, rules: IFModel.SplitRules,
   words = words || {};
   //if(!process.env.ABOT_NO_TEST1) {
   return processString2(query, rules, words);
-  //}
+}
   /*
   var tokenStruct = tokenizeString(query, rules, words);
   evaluateRangeRulesToPosition(tokenStruct.tokens, tokenStruct.fusable,
@@ -457,19 +459,235 @@ export function processString(query: string, rules: IFModel.SplitRules,
   }
   return aSentences;
   */
+
+
+export function findCloseIdenticals( mp :  {[key : string] : IMatch.IWord}, word : IMatch.IWord ) : Array<IMatch.IWord>
+{
+  var res = [] as Array<IMatch.IWord>;
+  for( var key in mp )
+  {
+    if ( key == word.string )
+    {
+      res.push( mp[ key ]);
+    }
+    else if ( CharSequence.CharSequence.isSameOrPluralOrVeryClose( key, word.string ) )
+    {
+      res.push( mp[key] );
+    }
+  }
+  return res;
 }
 
-/**
- * Return true if the identical word is interpreted
- * (within the same domain and the same wordtype)
- * as a differnent  (e.g. element numb is one interpreted as 'CAT' element name, once as CAT 'element number' in
- * same domain IUPAC elements )
- * @param sentence
- */
+/* Return true if the identical *source word* is interpreted
+* (within the same domain and the same wordtype)
+* as a differnent  (e.g. element numb is one interpreted as 'CAT' element name, once as CAT 'element number' in
+*
+* example
+* [ 'element names=>element number/category/2 F16',         <<< (1)
+*    'element number=>element number/category/2 F16',
+*    'element weight=>atomic weight/category/2 F16',
+*    'element name=>element name/category/2 F16',           <<< (2)
+*    'with=>with/filler I256',
+*    'element name=>element name/category/2 F16',           <<< (3)
+*   'starting with=>starting with/operator/2 O256',
+*    'ABC=>ABC/any A4096' ],
+*
+* same domain IUPAC elements)
+*
+*  (1) differs to (2),(3) although the base words are very similar element names, element name, element name respectively
+*
+* - exact match
+* - stemming by removing/appending traling s
+* - closeness
+*
+* @param sentence
+*/
 export function isDistinctInterpretationForSame(sentence : IMatch.ISentence) : boolean {
   var mp = {} as {[key : string] : IMatch.IWord};
   var res = sentence.every((word, index) => {
+    var seens = findCloseIdenticals( mp, word );
+    debuglog(" investigating seens for " + word.string + " " + JSON.stringify(seens, undefined, 2));
+    for( var seen of seens)
+    {
+      //var seen = mp[word.string];
+      /*if(!seen) {
+        mp[word.string] = word;
+        return true;
+      }*/
+      if(!seen.rule || !word.rule) {
+        //return true;
+      }
+      else if(seen.rule.bitindex === word.rule.bitindex
+        && seen.rule.matchedString !== word.rule.matchedString ){
+          debuglog("skipping this" + JSON.stringify(sentence,undefined,2));
+          return false;
+      }
+    }
+    if(!mp[word.string])
+    {
+      mp[word.string] = word;
+      return true;
+    }
+    return true;
+ });
+ return res;
+}
+
+export function isSameCategoryAndHigherMatch(sentence : IMatch.ISentence,  idxmap : { [akey : number] : Array<IMatch.IWord> }) : boolean {
+  var idxmapother = {} as { [akey : number] : Array<IMatch.IWord> };
+  var cnt = 0;
+  var prodo =1.0;
+  var prod = 1.0;
+  Object.keys( idxmap ).forEach( (idxkey) => {
+    var wrd = idxmap[idxkey];
+    var idx = parseInt( idxkey );
+    if ( sentence.length > idx )
+    {
+      var wrdo = sentence[idx];
+      if( wrdo.string === wrd.string
+        && wrdo.rule.bitindex === wrd.rule.bitindex
+        && wrdo.rule.wordType === wrd.rule.wordType
+        && wrdo.rule.category === wrd.rule.category )
+      {
+        ++cnt;
+        prodo = prodo * wrdo._ranking;
+        prod = prod * wrd._ranking;
+      }
+    }
+  });
+  if ( cnt === Object.keys( idxmap ).length && prodo > prod )
+  {
+    return true;
+  }
+  return false;
+}
+
+
+/* Return true if the identical *target word* is expressed by different source words
+* (within the same domain and the same wordtype)
+*
+* this is problematic with aliases mapped onto the same target, (eg. where -> with, with -> where )
+* so perhaps only for categories and facts?
+*
+* example <pre>
+* [ 'element names=>element number/category/2 C8',         <<< (1a)
+*    'element number=>element number/category/2 C8',       <<< (2)
+*    'element weight=>atomic weight/category/2 C8',
+*    'element name=>element number/category/2 C8',           <<< (1b)
+*    'with=>with/filler I256',
+*    'element name=>element number/category/2 C8',           <<< (1c)
+*    'starting with=>starting with/operator/2 O256',
+*    'ABC=>ABC/any A4096' ],
+*
+* same domain IUPAC elements)
+*
+*  (1abc) differs from (2),
+*  and there is a much better interpretation around
+* </pre>
+* - exact match
+* - stemming by removing/appending traling s
+* - closeness
+*
+* @param sentence
+*/
+export function isNonOptimalDistinctSourceForSame(sentence : IMatch.ISentence, sentences : Array<IMatch.ISentence>) : boolean {
+  var mp = {} as {[key : string] :  { [key : number] : Array<IMatch.IWord> } };
+  // calculate conflicts :    [taget_word -> ]
+  var res = sentence.every((word) => {
+    if ( word.category === Word.Category.CAT_CATEGORY
+      && (  word.rule.wordType === IMatch.WORDTYPE.FACT
+         || word.rule.wordType === IMatch.WORDTYPE.CATEGORY ))
+    {
+      if (!mp[word.rule.matchedString ])
+        mp[word.rule.matchedString] = {} as { [key : number] : Array<IMatch.IWord> };
+      if( !mp[word.rule.matchedString][word.rule.bitindex])
+        mp[word.rule.matchedString][word.rule.bitindex] = [] as  Array<IMatch.IWord>;
+      var arr = mp[word.rule.matchedString][word.rule.bitindex];
+      if( arr.length == 0 )
+      {
+        arr.push(word);
+      }
+      if ( !arr.every( (presentword) => {
+        return CharSequence.CharSequence.isSameOrPluralOrVeryClose( word.string, presentword.string );
+      }))
+      {
+        arr.push( word );
+      }
+    }
+    // retain only entries with more than one member in the list
+    var mpduplicates = {} as {[key : string] :  { [key : number] : Array<IMatch.IWord> } };
+    Object.keys( mp ).forEach( (key) => {
+      var entry = mp[key];
+      Object.keys( entry ).forEach( (keybitindex) => {
+        if ( entry[keybitindex].length > 1)
+        {
+          if (!mpduplicates[key])
+            mpduplicates[key] = {} as { [key : number] : Array<IMatch.IWord> };
+          mpduplicates[key][keybitindex] = entry[keybitindex];
+        }
+      });
+    });
+    return Object.keys( mpduplicates ).every( (key) =>  {
+      return Object.keys( mpduplicates[ key ] ).every( ( bi ) => {
+        var lst = mpduplicates[key][bi];
+        var idxmap = {} as { [akey : number] : Array<IMatch.IWord> };
+        /* ok, do some work ..  */
+        /* for every duplicate we collect an index  idx -> word */
+        for( var alst of lst )
+        {
+          var idx = sentence.indexOf( alst );
+          if ( idx < 0 )
+            throw new Error("word must be found in sentence ");
+          idxmap[ idx ] = alst;
+        }
+        /* then we run through all the sentences identifying *identical source words pairs,
+           if we find a  a) distinct sentence with
+                      b) same categories F16/F16
+                  and c) *higher matches* for both , then we discard *this* sentence
+                  */
+        return sentences.every( (othersentence) => {
+          if( othersentence === sentence )
+            return true;
+          if ( isSameCategoryAndHigherMatch( othersentence, idxmap) )
+          {
+            debuglog(" removing sentence with due to higher match " +  Sentence.simplifyStringsWithBitIndex(sentence)
+            + " as " + Sentence.simplifyStringsWithBitIndex( othersentence ) + " appears better ");
+            return false;
+          }
+          return true;
+        });
+      })
+    });
+  });
+  debuglog(" here res " + !res + " " +  Sentence.simplifyStringsWithBitIndex(sentence) );
+  return !res;
+}
+
+
+/*
+ * Return true if the identical source word is interpreted
+ * (within the same domain and the same wordtype)
+ * as a differnent  (e.g. element numb is one interpreted as 'CAT' element name, once as CAT 'element number' in
+ * same domain IUPAC elements)
+ *
+ * - exact match
+ * - stemming by removing/appending traling s
+ * - closeness
+ *
+ * @param sentence
+ */
+export function isDistinctInterpretationForSameOLD(sentence : IMatch.ISentence) : boolean {
+  var mp = {} as {[key : string] : IMatch.IWord};
+  var res = sentence.every((word, index) => {
     var seen = mp[word.string];
+    if(!seen)
+    { // exact match
+      /*if( word.string.length > 3 && word.string.charAt(word.string.length - 1).toLowerCase() == 's')
+      {
+
+      }
+      */
+    }
     if(!seen) {
       mp[word.string] = word;
       return true;
@@ -508,6 +726,28 @@ export function filterNonSameInterpretations(aSentences :  IMatch.IProcessedSent
   return res;
 }
 
+
+export function filterReverseNonSameInterpretations(aSentences :  IMatch.IProcessedSentences ) : IMatch.IProcessedSentences {
+  var discardIndex = [] as Array<number>;
+  var res = (Object as any).assign( {}, aSentences );
+  res.sentences = aSentences.sentences.filter((sentence,index) => {
+    if(isNonOptimalDistinctSourceForSame(sentence, aSentences.sentences)) {
+      discardIndex.push(index);
+      return false;
+    }
+    return true;
+  });
+  if(discardIndex.length) {
+    res.errors = aSentences.errors.filter( (error,index) => {
+      if(discardIndex.indexOf(index) >= 0) {
+        return false;
+      }
+      return true;
+    });
+  }
+  return res;
+}
+
 export function processString2(query: string, rules: IFModel.SplitRules,
  words: { [key: string]: Array<IMatch.ICategorizedString> }
 ):  IMatch.IProcessedSentences {
@@ -522,6 +762,9 @@ export function processString2(query: string, rules: IFModel.SplitRules,
     return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
     }).join("\n"));
   var aSentences = filterNonSameInterpretations(aSentences);
+
+  aSentences = filterReverseNonSameInterpretations(aSentences);
+
   aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
   debuglogV(()=> "after reinforce\n" + aSentences.sentences.map(function (oSentence) {
       return Sentence.rankingProduct(oSentence) + ":\n" + JSON.stringify(oSentence);

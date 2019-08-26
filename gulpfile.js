@@ -23,7 +23,6 @@ var sourcemaps = require('gulp-sourcemaps');
  * Directory containing generated sources which still contain
  * JSDOC etc.
  */
-// var genDir = 'gen';
 var srcDir = 'src';
 var testDir = 'test';
 
@@ -35,7 +34,7 @@ gulp.task('watch', function () {
 /**
  * compile tsc (including srcmaps)
  * @input srcDir
- * @output genDir
+ * @output js
  */
 gulp.task('tsc', function () {
   var tsProject = ts.createProject('tsconfig.json', { inlineSourceMap: true

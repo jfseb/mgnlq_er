@@ -52,7 +52,5 @@ export const aReinforceDistWeight: Array<number> = [0.1, 0.1, 0.05, 0.02];
  */
 export const Top_N_WordCategorizations = 5;
 
-
-
 export const DescribeValueListMinCountValueList = 3;
 export const DescribeValueListLengthCharLimit = 60;

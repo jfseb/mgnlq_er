@@ -188,7 +188,7 @@ export interface IProcessed {
 
 export interface IProcessedSentences extends IProcessed {
   tokens : string[],
-  errors? : any,
+  //errors? : any,
   sentences : ISentence[]
 };
 

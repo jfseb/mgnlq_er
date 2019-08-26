@@ -13,6 +13,8 @@ exports.Sentence = Sentence;
 //export { InputFilterRules };
 var InputFilter = require("./match/inputFilter");
 exports.InputFilter = InputFilter;
+var CharSequence = require("./match/charsequence");
+exports.CharSequence = CharSequence;
 var Word = require("./match/word");
 exports.Word = Word;
 var IFErBase = require("./match/iferbase");

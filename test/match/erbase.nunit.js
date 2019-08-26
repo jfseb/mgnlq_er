@@ -684,6 +684,168 @@ exports.testProcessStringSameDistinct = function (test) {
 
 
 
+exports.testProcessStringAsymmetric = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+
+    var res = Erbase.processString('element name, element number, element weight with element name starting with ABC', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+    [ [ 'element name=>element name/category/2 C8',
+    'element number=>element number/category/2 C8',
+    'element weight=>atomic weight/category/2 C8',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 C8',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element name=>element name/category/2 F16',
+    'element number=>element number/category/2 F16',
+    'element weight=>atomic weight/category/2 F16',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element name=>element number/category/2 C8',
+    'element number=>element name/category/2 C8',
+    'element weight=>atomic weight/category/2 C8',
+    'with=>with/filler I256',
+    'element name=>element number/category/2 C8',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element name=>element number/category/2 F16',
+    'element number=>element name/category/2 F16',
+    'element weight=>atomic weight/category/2 F16',
+    'with=>with/filler I256',
+    'element name=>element number/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ] ]
+      , ' correct distinct result ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+
+exports.testProcessStringAlmostSameWordDistinct = function (test) {
+ /* test that "element names" and "element name" are suitably close to allow to eliminate distinct interpretations */
+
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+
+    var res = Erbase.processString('element names, element number, element weight, \"element name\" with element name starting with \"ABC\"', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+    [ [ 'element names=>element name/category/2 C8',
+    'element number=>element number/category/2 C8',
+    'element weight=>atomic weight/category/2 C8',
+    'element name=>element name/category C8',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 C8',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element names=>element name/category/2 F16',
+    'element number=>element number/category/2 F16',
+    'element weight=>atomic weight/category/2 F16',
+    'element name=>element name/category F16',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ] ]
+
+    , ' correct distinct result ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+
+exports.testProcessStringAlmostSameWordDistinctReverse = function (test) {
+  /* test that "element names" and "element name" are suitably close to allow to eliminate distinct interpretations */
+
+   getRules().then((args) => {
+     var [rules, mongoose] = args;
+
+     var res = Erbase.processString('element names, element number, element weight, element name with element name starting with \"ABC\"', rules, words);
+     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+
+     [ [ 'element names=>element name/category/2 C8',
+    'element number=>element number/category/2 C8',
+    'element weight=>atomic weight/category/2 C8',
+    'element name=>element name/category/2 C8',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 C8',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element names=>element name/category/2 F16',
+    'element number=>element number/category/2 F16',
+    'element weight=>atomic weight/category/2 F16',
+    'element name=>element name/category/2 F16',
+    'with=>with/filler I256',
+    'element name=>element name/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element names=>element number/category/2 C8',
+    'element number=>element name/category/2 C8',        // TODO: eliminate this here or later ( after querying?) as an alternative is present which is equivalent
+    'element weight=>atomic weight/category/2 C8',
+    'element name=>element number/category/2 C8',
+    'with=>with/filler I256',
+    'element name=>element number/category/2 C8',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ],
+  [ 'element names=>element number/category/2 F16',
+    'element number=>element name/category/2 F16',
+    'element weight=>atomic weight/category/2 F16',
+    'element name=>element number/category/2 F16',
+    'with=>with/filler I256',
+    'element name=>element number/category/2 F16',
+    'starting with=>starting with/operator/2 O256',
+    'ABC=>ABC/any A4096' ] ]
+  , ' correct distinct result ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+
+
+exports.testProcessStringDistinctSourceWordsOK = function (test) {
+  /* test that "aliases" are not removed if they are the *best* choice */
+
+   getRules().then((args) => {
+     var [rules, mongoose] = args;
+
+     var res = Erbase.processString('element weight, atomic weight with element weight starting with \"ABC\"', rules, words);
+     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+     [ [ 'element weight=>atomic weight/category/2 C8',
+     'atomic weight=>atomic weight/category/2 C8',
+     'with=>with/filler I256',
+     'element weight=>atomic weight/category/2 C8',
+     'starting with=>starting with/operator/2 O256',
+     'ABC=>ABC/any A4096' ],
+   [ 'element weight=>atomic weight/category/2 F16',
+     'atomic weight=>atomic weight/category/2 F16',
+     'with=>with/filler I256',
+     'element weight=>atomic weight/category/2 F16',
+     'starting with=>starting with/operator/2 O256',
+     'ABC=>ABC/any A4096' ] ]
+  , ' correct distinct result ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
 
 
 
