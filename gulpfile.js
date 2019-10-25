@@ -23,26 +23,27 @@ gulp.task('watch', function () {
  * @output js
  */
 gulp.task('tsc', function () {
-  var tsProject = ts.createProject('tsconfig.json', { inlineSourceMap: true
+  var tsProject = ts.createProject('tsconfig.json', {
+    inlineSourceMap: true
   });
   var tsResult = tsProject.src() // gulp.src('lib/*.ts')
     .pipe(sourcemaps.init()) // This means sourcemaps will be generated
     .pipe(tsProject());
 
   return tsResult.js
-    .pipe(sourcemaps.write('.',{
-    /*  sourceRoot : function(file) {
-        file.sourceMap.sources[0] = '/projects/nodejs/botbuilder/abot_stringdist/src/' + file.sourceMap.sources[0];
-        //console.log('here is************* file' + JSON.stringify(file, undefined, 2));
-        return 'ABC';
-      },
-      mapSources: function(src) {
-        return '/projects/nodejs/botbuilder/mgnlq_er/' + src;
-      }
-  */
+    .pipe(sourcemaps.write('.', {
+      /*  sourceRoot : function(file) {
+          file.sourceMap.sources[0] = '/projects/nodejs/botbuilder/abot_stringdist/src/' + file.sourceMap.sources[0];
+          //console.log('here is************* file' + JSON.stringify(file, undefined, 2));
+          return 'ABC';
+        },
+        mapSources: function(src) {
+          return '/projects/nodejs/botbuilder/mgnlq_er/' + src;
+        }
+    */
     }
-      )) // ,  { sourceRoot: './' } ))
-      // Now the sourcemaps are added to the .js file
+    )) // ,  { sourceRoot: './' } ))
+    // Now the sourcemaps are added to the .js file
     .pipe(gulp.dest('js'));
 });
 
@@ -59,7 +60,7 @@ gulp.task('clean:models', function () {
     'sensitive/_cachetrue.js.zip',
     'testmodel2/_cachetrue.js.zip'
     // we don't want to clean this file though so we negate the pattern
-//    '!dist/mobile/deploy.json'
+    //    '!dist/mobile/deploy.json'
   ]);
 });
 
@@ -71,17 +72,17 @@ gulp.task('test', gulp.series('tsc', function () {
   return gulp.src(['test/**/*.js'])
     .pipe(nodeunit({
       reporter: 'minimal'
-    // reporterOptions: {
-    //  output: 'testcov'
-    // }
+      // reporterOptions: {
+      //  output: 'testcov'
+      // }
     })).on('error', function (err) { console.log('This is weird: ' + err.message); })
     .pipe(gulp.dest('./out/lcov.info'));
-});
+}));
 
 
 var jsdoc = require('gulp-jsdoc3');
 
-gulp.task('doc', gulp.series( 'test', function (cb) {
+gulp.task('doc', gulp.series('test', function (cb) {
   return gulp.src([srcDir + '/**/*.js', 'README.md', './js/**/*.js'], { read: false })
     .pipe(jsdoc(cb));
 }));
@@ -111,16 +112,17 @@ gulp.task('pack', () => {
   return gulpRun('npm pack').exec().pipe(gulp.dest('outpu'));
 });
 
-gulp.task('packhome1', gulp.series('pack' , () => {
+gulp.task('packhome1', gulp.series('pack', () => {
   return gulpRun('cd ..\\fdevstart && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
-  .pipe(gulp.dest('outpu_packhome1'));
+    .pipe(gulp.dest('outpu_packhome1'));
 }));
 
-gulp.task('packhome2', gulp.series('pack' , () => {
+gulp.task('packhome2', gulp.series('pack', () => {
   return gulpRun('cd ..\\abot && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
-  .pipe(gulp.dest('outpu_packhome2'));
-}))
-gulp.task('packhome', gulp.series('packhome1' , 'packhome2'));
+    .pipe(gulp.dest('outpu_packhome2'));
+}));
+
+gulp.task('packhome', gulp.series('packhome1', 'packhome2'));
 
 
 // Default Task

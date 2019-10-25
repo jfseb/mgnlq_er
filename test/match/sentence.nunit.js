@@ -14,15 +14,15 @@ const sentence = require(root + '/match/sentence.js');
 debuglog(' here sentence ' + JSON.stringify(sentence));
 
 const oSentence = [
-      {'matchedString' : 'start', 'category' : 'filler'},
-      {'matchedString' : 'catalog', 'category' : 'category'},
-      {'matchedString' : 'ABC', 'category' : 'catalog'},
-      {'matchedString' : 'in', 'category' : 'filler'},
-      {'matchedString' : 'FLPD', 'category' : 'tool'},
-      {'matchedString' : 'in', 'category' : 'filler'},
-      {'matchedString' : 'UV2', 'category' : 'systemId'},
-      {'matchedString' : 'client', 'category' : 'category'},
-      {'matchedString' : '120', 'category' : 'client'}
+  { 'matchedString': 'start', 'category': 'filler' },
+  { 'matchedString': 'catalog', 'category': 'category' },
+  { 'matchedString': 'ABC', 'category': 'catalog' },
+  { 'matchedString': 'in', 'category': 'filler' },
+  { 'matchedString': 'FLPD', 'category': 'tool' },
+  { 'matchedString': 'in', 'category': 'filler' },
+  { 'matchedString': 'UV2', 'category': 'systemId' },
+  { 'matchedString': 'client', 'category': 'category' },
+  { 'matchedString': '120', 'category': 'client' }
 ];
 
 
@@ -43,15 +43,15 @@ exports.testGetDistinctCategoriesInSentence = function (test) {
   // prepare
   // act
   const res = sentence.getDistinctCategoriesInSentence([
-      {'matchedString' : 'start', 'category' : 'filler'},
-      {'matchedString' : 'catalog', 'category' : 'category'},
-      {'matchedString' : 'ABC', 'category' : 'catalog'},
-      {'matchedString' : 'in', 'category' : 'filler'},
-      {'matchedString' : 'FLPD', 'category' : 'category'},
-      {'matchedString' : 'in', 'category' : 'filler'},
-      {'matchedString' : 'catalog', 'category' : 'category'},
-      {'matchedString' : 'client', 'category' : 'category'},
-      {'matchedString' : '120', 'category' : 'client'}
+    { 'matchedString': 'start', 'category': 'filler' },
+    { 'matchedString': 'catalog', 'category': 'category' },
+    { 'matchedString': 'ABC', 'category': 'catalog' },
+    { 'matchedString': 'in', 'category': 'filler' },
+    { 'matchedString': 'FLPD', 'category': 'category' },
+    { 'matchedString': 'in', 'category': 'filler' },
+    { 'matchedString': 'catalog', 'category': 'category' },
+    { 'matchedString': 'client', 'category': 'category' },
+    { 'matchedString': '120', 'category': 'client' }
   ]);
   // check
   test.deepEqual(res, ['catalog', 'FLPD', 'client']);
