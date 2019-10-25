@@ -49,7 +49,7 @@
   "dependencies": {
     "@types/mongoose": "^5.5.23",
     "abot_stringdist": "^0.1.3",
-    "abot_utils": "^0.1.0",
+    "abot_utils": "^1.0.1",
     "debugf": "^0.1.2",
     "mgnlq_model": "^0.0.6",
     "mongoose": "^5.7.7"
