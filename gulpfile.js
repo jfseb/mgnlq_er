@@ -1,18 +1,4 @@
-/*
-var ts = require("gulp-typescript")
-
-// according to https://www.npmjs.com/package/gulp-typescript
-// not supported
-var tsProject = ts.createProject('tsconfig.json', { inlineSourceMap : false })
-
-*/
-// gulp.task('scripts', function() {
-//    var tsResult = tsProject.src() // gulp.src("lib/*  * / * .ts") // or tsProject.src()
-//        .pipe(tsProject())
-//
-//    return tsResult.js.pipe(gulp.dest('release'))
-// })
-// *
+/* standard_v1.0.0*/
 
 var gulp = require('gulp');
 
@@ -27,7 +13,7 @@ var srcDir = 'src';
 var testDir = 'test';
 
 gulp.task('watch', function () {
-  gulp.watch([srcDir + '/**/*.js', testDir + '/**/*.js', srcDir + '/**/*.tsx',  srcDir + '/**/*.ts', 'gulpfile.js'],
+  gulp.watch([srcDir + '/**/*.js', testDir + '/**/*.js', srcDir + '/**/*.tsx', srcDir + '/**/*.ts', 'gulpfile.js'],
     ['tsc', 'eslint']);
 });
 
@@ -60,17 +46,6 @@ gulp.task('tsc', function () {
     .pipe(gulp.dest('js'));
 });
 
-/*
-var webpacks = require('webpack-stream');
-gulp.task('webpack_notinuse', function() {
-  return gulp.src('./src/web/qbetable.tsx')
-    .pipe(webpacks( require('./webpack.config.js') ))
-    .pipe(gulp.dest('/app/public/js/'));
-});
-
-
-*/
-
 
 var del = require('del');
 
@@ -82,39 +57,34 @@ gulp.task('clean:models', function () {
     'node_modules/abot_testmodel/testmodel/_cachetrue.js.zip',
     'testmodel/_cachefalse.js.zip',
     'sensitive/_cachetrue.js.zip',
-    'testmodel2/_cachetrue.js.zip',
-    'testmodel/_cachetrue.js.zip',
-    // here we use a globbing pattern to match everything inside the `mobile` folder
-  //  'dist/mobile/**/*',
+    'testmodel2/_cachetrue.js.zip'
     // we don't want to clean this file though so we negate the pattern
 //    '!dist/mobile/deploy.json'
   ]);
 });
 
-gulp.task('clean', ['clean:models']);
-
-
-
-var jsdoc = require('gulp-jsdoc3');
-
-gulp.task('doc', ['test'], function (cb) {
-  gulp.src([srcDir + '/**/*.js', 'README.md', './js/**/*.js'], { read: false })
-    .pipe(jsdoc(cb));
-});
+gulp.task('clean', gulp.series('clean:models'));
 
 var nodeunit = require('gulp-nodeunit');
 
-gulp.task('test', ['tsc'], function () {
-  gulp.src(['test/**/*.js'])
+gulp.task('test', gulp.series('tsc', function () {
+  return gulp.src(['test/**/*.js'])
     .pipe(nodeunit({
       reporter: 'minimal'
-      // reporterOptions: {
-      //  output: 'testcov'
-      // }
+    // reporterOptions: {
+    //  output: 'testcov'
+    // }
     })).on('error', function (err) { console.log('This is weird: ' + err.message); })
     .pipe(gulp.dest('./out/lcov.info'));
 });
 
+
+var jsdoc = require('gulp-jsdoc3');
+
+gulp.task('doc', gulp.series( 'test', function (cb) {
+  return gulp.src([srcDir + '/**/*.js', 'README.md', './js/**/*.js'], { read: false })
+    .pipe(jsdoc(cb));
+}));
 
 const eslint = require('gulp-eslint');
 
@@ -141,18 +111,18 @@ gulp.task('pack', () => {
   return gulpRun('npm pack').exec().pipe(gulp.dest('outpu'));
 });
 
-gulp.task('packhome1', ['pack'] , () => {
+gulp.task('packhome1', gulp.series('pack' , () => {
   return gulpRun('cd ..\\fdevstart && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
   .pipe(gulp.dest('outpu_packhome1'));
-});
+}));
 
-gulp.task('packhome2', ['pack'] , () => {
+gulp.task('packhome2', gulp.series('pack' , () => {
   return gulpRun('cd ..\\abot && npm i ..\\erbase_bitmap\\abot_erbase-0.1.4.tgz').exec()
   .pipe(gulp.dest('outpu_packhome2'));
-});
-gulp.task('packhome', ['packhome1' , 'packhome2' ]);
+}))
+gulp.task('packhome', gulp.series('packhome1' , 'packhome2'));
 
 
 // Default Task
-gulp.task('default', ['tsc',  'eslint', 'test', 'doc' ]);
-gulp.task('build', ['tsc', 'eslint']);
+gulp.task('default', gulp.series('tsc', 'eslint', 'test', 'doc'));
+gulp.task('build', gulp.series('tsc', 'eslint'));

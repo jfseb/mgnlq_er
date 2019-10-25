@@ -31,6 +31,16 @@ usage:
   var res = Erbase.processString('orbit of the earth', theModel.rules, words);
 ```
 
+result structure is a set of
+sentences and associated errors
+
+sentences are further pruned by removing: sentences containing Words containing identical strings which are mapped onto distinct entities,
+                                          sentences containing Words containing distinct strings which are mapped on the same entity ( if a better match exists )
+
 
 0.0.4 -> single result in checkOneRule
 
+
+entity recognition  mgnlq_er
+parsing             mgnlq_parser1
+querying
