@@ -41,7 +41,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "mgnlq_testmodel": "^0.0.5",
-    "mgnlq_testmodel_replay": "^0.0.12",
+    "mgnlq_testmodel_replay": "^0.0.13",
     "mongoose_record_replay": "^0.0.8",
     "nyc": "^14.1.1",
     "typescript": "^3.6.4"
