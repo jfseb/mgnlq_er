@@ -19,6 +19,7 @@ abot_erbase-*
 **/*.map
 *.bak
 gen2
+*.txt
 
 gen_cov
 js_cov

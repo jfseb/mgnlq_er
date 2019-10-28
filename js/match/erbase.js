@@ -205,7 +205,7 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
     var res = [[]];
     // var nvecs = [];
     var rvec = [];
-    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) { // wordg index k
+    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
         //vecs is the vector of all so far seen variants up to k length.
         var nextBase = [];
         //independent of existence of matches on level k, we retain all vectors which are covered by a span
@@ -222,7 +222,7 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
             result.errors.push(ERError.makeError_NO_KNOWN_WORD(tokenIndex, tokens));
             //}
         }
-        for (var l = 0; l < lenMatches; ++l) { // for each variant present at index k
+        for (var l = 0; l < lenMatches; ++l) {
             //debuglog("vecs now" + JSON.stringify(vecs));
             var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
             //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -307,7 +307,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
     var res = [[]];
     // var nvecs = [];
     var rvec = [];
-    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) { // wordg index k
+    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
         //vecs is the vector of all so far seen variants up to tokenIndex length.
         var nextBase = [];
         // independent of existence of matches on level k, we retain all vectors which are covered by a span
@@ -337,7 +337,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
             result.errors.push(ERError.makeError_NO_KNOWN_WORD(tokenIndex, tokens));
             //}
         }
-        for (var l = 0; l < lenMatches; ++l) { // for each variant present at index k
+        for (var l = 0; l < lenMatches; ++l) {
             //debuglog("vecs now" + JSON.stringify(vecs));
             var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
             //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -604,7 +604,7 @@ function isDistinctInterpretationForSameOLD(sentence) {
     var mp = {};
     var res = sentence.every(function (word, index) {
         var seen = mp[word.string];
-        if (!seen) { // exact match
+        if (!seen) {
             /*if( word.string.length > 3 && word.string.charAt(word.string.length - 1).toLowerCase() == 's')
             {
       

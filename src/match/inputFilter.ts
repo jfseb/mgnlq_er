@@ -65,37 +65,7 @@ export function calcDistance(sText1: string, sText2: string): number {
 
 
 export interface ICntRec {
-
 };
-
-
-/**
- * @param sText {string} the text to match to NavTargetResolution
- * @param sText2 {string} the query text, e.g. NavTarget
- *
- * @return the distance, note that is is *not* symmetric!
- */
-/*
-export function calcDistanceLevenXXX(sText1: string, sText2: string): number {
-  // console.log("length2" + sText1 + " - " + sText2)
-   if(((sText1.length - sText2.length) > Algol.calcDist.lengthDelta1)
-    || (sText2.length > 1.5 * sText1.length )
-    || (sText2.length < (sText1.length/2)) ) {
-    return 50000;
-  }
-  var a0 = distance.levenshtein(sText1.substring(0, sText2.length), sText2)
-  if(debuglogV.enabled) {
-    debuglogV("distance" + a0 + "stripped>" + sText1.substring(0,sText2.length) + "<>" + sText2+ "<");
-  }
-  if(a0 * 50 > 15 * sText2.length) {
-      return 40000;
-  }
-  var a = distance.levenshtein(sText1, sText2)
-  return a0 * 500 / sText2.length + a
-}
-*/
-
-
 
 
 type IRule = IFMatch.IRule
@@ -115,21 +85,6 @@ interface IMatchCount {
 }
 
 type EnumRuleType = IFModel.EnumRuleType
-
-//const levenCutoff = Algol.Cutoff_LevenShtein;
-
-/*
-export function levenPenaltyOld(i: number): number {
-  // 0-> 1
-  // 1 -> 0.1
-  // 150 ->  0.8
-  if (i === 0) {
-    return 1;
-  }
-  // reverse may be better than linear
-  return 1 + i * (0.8 - 1) / 150
-}
-*/
 
 export function levenPenalty(i: number): number {
   // 1 -> 1
@@ -287,6 +242,26 @@ export function cmpByResultThenRank(a: IFMatch.ICategorizedStringRanged, b: IFMa
   return 0;
 }
 
+function analyseRegexp(
+  res : Array<IFMatch.ICategorizedString>,
+  oRule : IFModel.mRule,
+  string : string )
+{
+  debuglog(()=> " here regexp: " + JSON.stringify(oRule, undefined, 2) + '\n' + oRule.regexp.toString() );
+  var m = oRule.regexp.exec(string);
+  var rec = undefined;
+  if (m) {
+    rec = {
+      string: string,
+      matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
+      rule : oRule,
+      category: oRule.category,
+      _ranking: oRule._ranking || 1.0
+    };
+    debuglog(()=>"\n!match regexp  " + oRule.regexp.toString() + " " + rec._ranking.toFixed(3) + "  " + string + "="  + oRule.lowercaseword  + " => " + oRule.matchedString + "/" + oRule.category);
+    res.push(rec);
+  }
+}
 
 
 export function checkOneRule(string: string, lcString : string, exact : boolean,
@@ -339,19 +314,8 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
         }
         break;
       case IFModel.EnumRuleType.REGEXP: {
-        throw Error('REGEXP not supported');
-        /*
-        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-        var m = oRule.regexp.exec(string)
-        if (m) {
-          res.push({
-            string: string,
-            matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-            category: oRule.category,
-            _ranking: oRule._ranking || 1.0
-          })
-        }
-      }*/
+        analyseRegexp( res, oRule, string );
+        break; // throw Error('REGEXP not supported');
       }
       //break;
       default:
@@ -412,22 +376,8 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
         }
         break;
       case IFModel.EnumRuleType.REGEXP: {
-        throw new Error('REGEXP not supported');
-        /*
-        debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-        var m = oRule.regexp.exec(string)
-        if (m) {
-          res.push({
-            string: string,
-            rule: oRule,
-            matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-            category: oRule.category,
-            _ranking: oRule._ranking || 1.0
-          })
-        }
-      }
+        analyseRegexp( res, oRule, string );
         break;
-        */
       }
       //break;
       default:

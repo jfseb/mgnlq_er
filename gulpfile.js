@@ -54,6 +54,8 @@ gulp.task('clean:models', function () {
   return del([
     'sensitive/_cachefalse.js.zip',
     'testmodel2/_cachefalse.js.zip',
+    'node_modules/mgnlq_testmodel/testmodel/_cache.js.zip',
+    'node_modules/mgnlq_testmodel_replay/testmodel/_cache.js.zip',
     'node_modules/abot_testmodel/testmodel/_cachefalse.js.zip',
     'node_modules/abot_testmodel/testmodel/_cachetrue.js.zip',
     'testmodel/_cachefalse.js.zip',
@@ -78,7 +80,6 @@ gulp.task('test', gulp.series('tsc', function () {
     })).on('error', function (err) { console.log('This is weird: ' + err.message); })
     .pipe(gulp.dest('./out/lcov.info'));
 }));
-
 
 var jsdoc = require('gulp-jsdoc3');
 
@@ -126,5 +127,5 @@ gulp.task('packhome', gulp.series('packhome1', 'packhome2'));
 
 
 // Default Task
-gulp.task('default', gulp.series('tsc', 'eslint', 'test', 'doc'));
+gulp.task('default', gulp.series('tsc', 'eslint', 'test', 'doc'), function(a) { a(); });
 gulp.task('build', gulp.series('tsc', 'eslint'));

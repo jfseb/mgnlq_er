@@ -18,6 +18,7 @@ const utils = require('abot_utils');
 const Algol = require(root + '/match/algol.js');
 
 const Model = require('mgnlq_model').Model;
+const IMatch = require('mgnlq_model').IFModel;
 const MongoUtils = require('mgnlq_model').MongoUtils;
 
 
@@ -639,6 +640,41 @@ exports.test_checkOneRuleWithOffsetWordAExactOnly = function (test) {
   test.done();
 };
 
+exports.test_checkOneRuleWithOffsetWordNumbers = function (test) {
+  // prepare
+  var bitIndexAllDomains = 0xFFF;
+  var metaBitIndex = 0xFFF;
+  var aRule =  {
+    category: "number",
+    matchedString: "one",
+    type: IMatch.EnumRuleType.REGEXP,
+    regexp : /(\d+)|(one)|(two)|(three)/,
+    matchIndex : 0,
+    word: "<number>",
+    bitindex: metaBitIndex,
+    wordType: IMatch.WORDTYPE.NUMERICARG, // number
+    bitSentenceAnd: bitIndexAllDomains,
+    _ranking: 0.95
+  };
+  test.expect(5);
+  // act
+  var res = [];
+  ab.checkOneRuleWithOffset('123','123', true, res, aRule, {});
+  test.equal(res && res.length, 1, JSON.stringify( res, undefined, 2));
+  res = [];
+  ab.checkOneRuleWithOffset('one','one', true, res, aRule, {});
+  test.equal(res && res.length, 1, JSON.stringify( res, undefined, 2));
+  res = [];
+  ab.checkOneRuleWithOffset('two','two', true, res, aRule, {});
+  test.equal(res && res.length, 1,JSON.stringify( res, undefined, 2));
+  res = [];
+  ab.checkOneRuleWithOffset('four','four', false, res, aRule, {});
+  test.equal(res && res.length, 0,JSON.stringify( res, undefined, 2));
+  res = [];
+  ab.checkOneRuleWithOffset('VaLUEaa','valueaa', false, res, aRule, {});
+  test.equal(res && res.length, 0, JSON.stringify( res, undefined, 2));
+  test.done();
+};
 
 exports.test_matchOthersFalse = function (test) {
   // prepare
@@ -1331,6 +1367,102 @@ exports.testCategorizeAWordWithOffest = function (test) {
     });
 };
 
+exports.testCategorizeANumberWordWithOffest = function (test) {
+  getRules().then( (args) => { var [rules,mongoose] = args;
+var res = inputFilter.categorizeAWord('1234', rules,  'not relevant', {}, {});
+test.deepEqual(res, [ { string: '1234',
+matchedString: '1234',
+rule:
+ { category: 'number',
+   matchedString: 'one',
+   type: 1,
+   regexp: {},
+   matchIndex: 0,
+   word: '<number>',
+   bitindex: 256,
+   wordType: 'N',
+   bitSentenceAnd: 255,
+   _ranking: 0.95 },
+category: 'number',
+_ranking: 0.95 } ]);
+test.done();
+releaseRules(mongoose);
+  });
+};
+
+exports.testCategorizeANumber12WordWithOffest = function (test) {
+  getRules().then( (args) => { var [rules,mongoose] = args;
+var res = inputFilter.categorizeAWord('12', rules,  'not relevant', {}, {});
+test.deepEqual(res, [ { string: '12',
+matchedString: '12',
+category: 'element number',
+rule:
+ { category: 'element number',
+   matchedString: '12',
+   type: 0,
+   word: '12',
+   bitindex: 8,
+   bitSentenceAnd: 8,
+   exactOnly: false,
+   wordType: 'F',
+   _ranking: 0.95,
+   lowercaseword: '12' },
+_ranking: 0.95 },
+{ string: '12',
+matchedString: '12',
+rule:
+ { category: 'number',
+   matchedString: 'one',
+   type: 1,
+   regexp: {},
+   matchIndex: 0,
+   word: '<number>',
+   bitindex: 256,
+   wordType: 'N',
+   bitSentenceAnd: 255,
+   _ranking: 0.95 },
+category: 'number',
+_ranking: 0.95 } ]);
+test.done();
+releaseRules(mongoose);
+  });
+};
+
+
+exports.testCategorizeANumber_One_WordWithOffest = function (test) {
+  getRules().then( (args) => { var [rules,mongoose] = args;
+var res = inputFilter.categorizeAWord('One', rules, 'not relevant', {}, {});
+test.deepEqual(res, [ ]); // TODO
+test.done();
+releaseRules(mongoose);
+  });
+};
+
+exports.testCategorizeANumber_one_WordWithOffest = function (test) {
+  getRules().then( (args) => { var [rules,mongoose] = args;
+var res = inputFilter.categorizeAWord('one', rules, 'not relevant', {}, {});
+test.deepEqual(res, [ { string: 'one',
+matchedString: 'one',
+rule:
+ { category: 'number',
+   matchedString: 'one',
+   type: 1,
+   regexp: {},
+   matchIndex: 0,
+   word: '<number>',
+   bitindex: 256,
+   wordType: 'N',
+   bitSentenceAnd: 255,
+   _ranking: 0.95 },
+category: 'number',
+_ranking: 0.95 } ]);
+test.done();
+releaseRules(mongoose);
+  });
+};
+
+
+
 
 exports.testCategorizeAWordWithOffest = function (test) {
     getRules().then( (args) => { var [rules,mongoose] = args;
@@ -1819,8 +1951,6 @@ exports.testreinforceMetaDomainSentence = function (test) {
   test.deepEqual(res, resline, 'correct reinforced string');
   test.done();
 };
-
-
 
 
 exports.testreinforce = function (test) {

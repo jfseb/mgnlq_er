@@ -50,19 +50,6 @@ function calcDistance(sText1, sText2) {
 }
 exports.calcDistance = calcDistance;
 ;
-//const levenCutoff = Algol.Cutoff_LevenShtein;
-/*
-export function levenPenaltyOld(i: number): number {
-  // 0-> 1
-  // 1 -> 0.1
-  // 150 ->  0.8
-  if (i === 0) {
-    return 1;
-  }
-  // reverse may be better than linear
-  return 1 + i * (0.8 - 1) / 150
-}
-*/
 function levenPenalty(i) {
     // 1 -> 1
     // cutOff => 0.8
@@ -210,6 +197,22 @@ function cmpByResultThenRank(a, b) {
     return 0;
 }
 exports.cmpByResultThenRank = cmpByResultThenRank;
+function analyseRegexp(res, oRule, string) {
+    debuglog(function () { return " here regexp: " + JSON.stringify(oRule, undefined, 2) + '\n' + oRule.regexp.toString(); });
+    var m = oRule.regexp.exec(string);
+    var rec = undefined;
+    if (m) {
+        rec = {
+            string: string,
+            matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
+            rule: oRule,
+            category: oRule.category,
+            _ranking: oRule._ranking || 1.0
+        };
+        debuglog(function () { return "\n!match regexp  " + oRule.regexp.toString() + " " + rec._ranking.toFixed(3) + "  " + string + "=" + oRule.lowercaseword + " => " + oRule.matchedString + "/" + oRule.category; });
+        res.push(rec);
+    }
+}
 function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
     debuglogV(function () { return 'attempting to match rule ' + JSON.stringify(oRule) + " to string \"" + string + "\""; });
     switch (oRule.type) {
@@ -243,7 +246,7 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
                 //if(oRule.lowercaseword === "cosmos") {
                 //  console.log("here ranking " + levenmatch + " " + oRule.lowercaseword + " " + lcString);
                 //}
-                if (levenmatch >= Algol.Cutoff_WordMatch) { // levenCutoff) {
+                if (levenmatch >= Algol.Cutoff_WordMatch) {
                     addCntRec(cntRec, "calcDistanceOk", 1);
                     var rec = {
                         string: string,
@@ -258,19 +261,8 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
             }
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP: {
-            throw Error('REGEXP not supported');
-            /*
-            debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-            var m = oRule.regexp.exec(string)
-            if (m) {
-              res.push({
-                string: string,
-                matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-                category: oRule.category,
-                _ranking: oRule._ranking || 1.0
-              })
-            }
-          }*/
+            analyseRegexp(res, oRule, string);
+            break; // throw Error('REGEXP not supported');
         }
         //break;
         default:
@@ -310,7 +302,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
                 //if(oRule.lowercaseword === "cosmos") {
                 //  console.log("here ranking " + levenmatch + " " + oRule.lowercaseword + " " + lcString);
                 //}
-                if (levenmatch >= Algol.Cutoff_WordMatch) { // levenCutoff) {
+                if (levenmatch >= Algol.Cutoff_WordMatch) {
                     //console.log("found rec");
                     addCntRec(cntRec, "calcDistanceOk", 1);
                     var rec = {
@@ -327,22 +319,8 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
             }
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP: {
-            throw new Error('REGEXP not supported');
-            /*
-            debuglog(()=> " here regexp" + JSON.stringify(oRule, undefined, 2));
-            var m = oRule.regexp.exec(string)
-            if (m) {
-              res.push({
-                string: string,
-                rule: oRule,
-                matchedString: (oRule.matchIndex !== undefined && m[oRule.matchIndex]) || string,
-                category: oRule.category,
-                _ranking: oRule._ranking || 1.0
-              })
-            }
-          }
+            analyseRegexp(res, oRule, string);
             break;
-            */
         }
         //break;
         default:
@@ -924,10 +902,10 @@ function expandMatchArr(deep) {
         var vecs = [[]];
         var nvecs = [];
         var rvec = [];
-        for (var k = 0; k < line[i].length; ++k) { // wordgroup k
+        for (var k = 0; k < line[i].length; ++k) {
             //vecs is the vector of all so far seen variants up to k wgs.
             var nextBase = [];
-            for (var l = 0; l < line[i][k].length; ++l) { // for each variant
+            for (var l = 0; l < line[i][k].length; ++l) {
                 //debuglog("vecs now" + JSON.stringify(vecs));
                 nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
                 //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -1096,8 +1074,6 @@ function augmentContext1(context, oRules, options) {
                 return matchWord(oRule, context, options);
             case mgnlq_model_1.IFModel.EnumRuleType.REGEXP:
                 return matchRegExp(oRule, context, options);
-            //   case "Extraction":
-            //     return matchExtraction(oRule,context);
         }
         return undefined;
     }).filter(function (ores) {

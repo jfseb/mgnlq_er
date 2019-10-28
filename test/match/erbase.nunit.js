@@ -300,6 +300,15 @@ exports.testTokenizeStringElNamesAlpha = function (test) {
   });
 };
 
+function canonicSort(arrofarr) {
+  var res = [];
+  for( var idx in arrofarr)
+  {
+    arrofarr[idx].sort();
+  }
+  return arrofarr;
+}
+
 
 exports.testTokenizeTCodeGRM3 = function (test) {
   getRules().then((args) => {
@@ -309,25 +318,80 @@ exports.testTokenizeTCodeGRM3 = function (test) {
     var res = Erbase.tokenizeString(' Application Component, fiori intent, Backendcatalog for GRM3.', rules, words);
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log(JSON.stringify(res));
-    test.deepEqual(simplifyStringsWithBitIndex(res.categorizedWords),
-[ [ 'Application Component=>ApplicationComponent/category/2 C2',
+    test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
+      [['Application Component=>ApplicationComponent/category/2 C2',
+        'Application Component=>ApplicationComponent/category/2 C4',
+        'Application Component=>ApplicationComponent/category/2 F16'],
+      ['Component=>ApplicationComponent/category C2',
+        'Component=>ApplicationComponent/category C4',
+        'Component=>ApplicationComponent/category F16'],
+      ['fiori intent=>fiori intent/category/2 C2',
+        'fiori intent=>fiori intent/category/2 C4',
+        'fiori intent=>fiori intent/category/2 F16'],
+      ['intent=>fiori intent/category C2',
+        'intent=>fiori intent/category C4',
+        'intent=>fiori intent/category F16'],
+      ['Backendcatalog=>BackendCatalogId/category C4',
+        'Backendcatalog=>BackendCatalogId/category F16'],
+      ['for=>for/filler I256'],
+      ['GRM3=>GRM3/TransactionCode F2',
+        'GRM3=>GRM3/TransactionCode F4',
+        'GRM3=>GRM3/appId F2']]
+      , ' correct result ');
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+
+exports.testTokenizeInteger = function (test) {
+  debugger;
+  getRules().then((args) => {
+    debugger;
+    var [rules, mongoose] = args;
+    // debuglog(JSON.stringify(ifr, undefined, 2))
+    //console.log(theModel.mRules);
+    var res = Erbase.tokenizeString('1, 1234 .', rules, words);
+    debuglog('res > ' + JSON.stringify(res, undefined, 2));
+    //console.log(JSON.stringify(res));
+    test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
+    [ [ '1=>1/element number F8', '1=>1/number N256' ],
+    [ '1234=>1234/number N256' ] ]
+      , ' correct result ');
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+exports.testTokenizeIntegers = function (test) {
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+    // debuglog(JSON.stringify(ifr, undefined, 2))
+    //console.log(theModel.mRules);
+    var res = Erbase.tokenizeString(' Application Component, 1, 2, and, or, 3, 4, 10, 12, 15, 203, 2034, one, two.', rules, words);
+    debuglog('res > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
+    [ [ 'Application Component=>ApplicationComponent/category/2 C2',
     'Application Component=>ApplicationComponent/category/2 C4',
     'Application Component=>ApplicationComponent/category/2 F16' ],
-  [ 'Component=>ApplicationComponent/category F16',
-    'Component=>ApplicationComponent/category C2',
-    'Component=>ApplicationComponent/category C4' ],
-  [ 'fiori intent=>fiori intent/category/2 C2',
-    'fiori intent=>fiori intent/category/2 C4',
-    'fiori intent=>fiori intent/category/2 F16' ],
-  [ 'intent=>fiori intent/category C2',
-    'intent=>fiori intent/category C4',
-    'intent=>fiori intent/category F16' ],
-  [ 'Backendcatalog=>BackendCatalogId/category C4',
-    'Backendcatalog=>BackendCatalogId/category F16' ],
-  [ 'for=>for/filler I256' ],
-  [ 'GRM3=>GRM3/appId F2',
-    'GRM3=>GRM3/TransactionCode F2',
-    'GRM3=>GRM3/TransactionCode F4' ] ]
+  [ 'Component=>ApplicationComponent/category C2',
+    'Component=>ApplicationComponent/category C4',
+    'Component=>ApplicationComponent/category F16' ],
+  [ '1=>1/element number F8', '1=>1/number N256' ],
+  [ '2=>2/element number F8', '2=>2/number N256' ],
+  [ 'and=>and/filler I256' ],
+  [],
+  [ '3=>3/element number F8', '3=>3/number N256' ],
+  [ '4=>4/element number F8', '4=>4/number N256' ],
+  [ '10=>10/element number F8', '10=>10/number N256' ],
+  [ '12=>12/element number F8', '12=>12/number N256' ],
+  [ '15=>15/element number F8', '15=>15/number N256' ],
+  [ '203=>203/number N256' ],
+  [ '2034=>2034/number N256' ],
+  [ 'one=>one/number N256' ],
+  [ 'two=>two/number N256' ] ]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -1214,10 +1278,15 @@ exports.testprocessStringModel2 = function (test) {
     var res = Erbase.processString('element number 10', rules, {});
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log('res > ' + JSON.stringify(res, undefined, 2));
-    test.deepEqual(simplifyStrings(res.sentences), [['element number=>element number/category/2',
-      '10=>10/element number'],
-    ['element number=>element name/category/2',
-      '10=>10/element number']], ' correct result ');
+    test.deepEqual(simplifyStrings(res.sentences), [ [ 'element number=>element number/category/2',
+    '10=>10/element number' ],
+  [ 'element number=>element number/category/2', '10=>10/number' ],
+  [ 'element number=>element number/category/2', '10=>10/number' ],
+  [ 'element number=>element name/category/2',
+    '10=>10/element number' ],
+  [ 'element number=>element name/category/2', '10=>10/number' ],
+  [ 'element number=>element name/category/2', '10=>10/number' ],
+  [ 'element number=>element name/category/2', '10=>10/number' ] ], ' correct result ');
     test.done();
     releaseRules(mongoose);
   });
