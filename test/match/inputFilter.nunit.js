@@ -1296,6 +1296,28 @@ exports.testinputFilter = function (test) {
   test.done();
 };
 
+
+function getRules() {
+  return getModel().then(
+    (model) => {
+      return Promise.resolve([model.rules, model]);
+    }
+  )
+}
+
+
+function releaseRules(theModel) {
+  Model.releaseModel(theModel);
+}
+
+
+process.on('unhandledRejection', function onError(err) {
+  console.log('erbase.nunit.js');
+  console.log(err);
+  console.log(err.stack);
+  throw err;
+});
+/* old?
 var mongoose = require('mongoose_record_replay').instrumentMongoose(require('mongoose'),
   'node_modules/mgnlq_testmodel_replay/mgrecrep/',
   'REPLAY');
@@ -1311,6 +1333,7 @@ function getRules() {
 function releaseRules(mongoose) {
   MongoUtils.disconnect(mongoose);
 }
+*/
 
 //const Model = require('fdevsta_monmove').Model;
 
@@ -1320,20 +1343,6 @@ exports.testCategorizeAWordWithOffest = function (test) {
     getRules().then( (args) => { var [rules,mongoose] = args;
  var res = inputFilter.categorizeAWord('ApplicationComponent', rules,  'not relevant', {}, {});
   test.deepEqual(res, [ { string: 'ApplicationComponent',
-    matchedString: 'ApplicationComponent',
-    category: 'category',
-    rule:
-     { category: 'category',
-       matchedString: 'ApplicationComponent',
-       type: 0,
-       word: 'ApplicationComponent',
-       lowercaseword: 'applicationcomponent',
-       bitindex: 2,
-       wordType: 'C',
-       bitSentenceAnd: 2,
-       _ranking: 0.95 },
-    _ranking: 0.95 },
-  { string: 'ApplicationComponent',
     matchedString: 'ApplicationComponent',
     category: 'category',
     rule:
@@ -1355,8 +1364,22 @@ exports.testCategorizeAWordWithOffest = function (test) {
        matchedString: 'ApplicationComponent',
        type: 0,
        word: 'ApplicationComponent',
-       bitindex: 16,
-       bitSentenceAnd: 16,
+       lowercaseword: 'applicationcomponent',
+       bitindex: 8,
+       wordType: 'C',
+       bitSentenceAnd: 8,
+       _ranking: 0.95 },
+    _ranking: 0.95 },
+  { string: 'ApplicationComponent',
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       bitindex: 32,
+       bitSentenceAnd: 32,
        exactOnly: false,
        wordType: 'F',
        _ranking: 0.95,
@@ -1379,9 +1402,9 @@ rule:
    regexp: {},
    matchIndex: 0,
    word: '<number>',
-   bitindex: 256,
+   bitindex: 512,
    wordType: 'N',
-   bitSentenceAnd: 255,
+   bitSentenceAnd: 511,
    _ranking: 0.95 },
 category: 'number',
 _ranking: 0.95 } ]);
@@ -1401,8 +1424,8 @@ rule:
    matchedString: '12',
    type: 0,
    word: '12',
-   bitindex: 8,
-   bitSentenceAnd: 8,
+   bitindex: 16,
+   bitSentenceAnd: 16,
    exactOnly: false,
    wordType: 'F',
    _ranking: 0.95,
@@ -1417,9 +1440,9 @@ rule:
    regexp: {},
    matchIndex: 0,
    word: '<number>',
-   bitindex: 256,
+   bitindex: 512,
    wordType: 'N',
-   bitSentenceAnd: 255,
+   bitSentenceAnd: 511,
    _ranking: 0.95 },
 category: 'number',
 _ranking: 0.95 } ]);
@@ -1450,9 +1473,9 @@ rule:
    regexp: {},
    matchIndex: 0,
    word: '<number>',
-   bitindex: 256,
+   bitindex: 512,
    wordType: 'N',
-   bitSentenceAnd: 255,
+   bitSentenceAnd: 511,
    _ranking: 0.95 },
 category: 'number',
 _ranking: 0.95 } ]);
@@ -1478,8 +1501,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
     rule:
      { category: 'category',
        matchedString: 'AppName',
-       bitindex: 2,
-       bitSentenceAnd: 2,
+       bitindex: 4,
+       bitSentenceAnd: 4,
        wordType: 'C',
        word: 'fiori',
        type: 0,
@@ -1493,8 +1516,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
              matchedString: 'AppName',
              type: 0,
              word: 'Fiori App',
-             bitindex: 2,
-             bitSentenceAnd: 2,
+             bitindex: 4,
+             bitSentenceAnd: 4,
              wordType: 'C',
              _ranking: 0.95,
              lowercaseword: 'fiori app' } } },
@@ -1505,8 +1528,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
     rule:
      { category: 'category',
        matchedString: 'AppName',
-       bitindex: 16,
-       bitSentenceAnd: 16,
+       bitindex: 32,
+       bitSentenceAnd: 32,
        wordType: 'F',
        word: 'fiori',
        type: 0,
@@ -1520,8 +1543,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
              matchedString: 'AppName',
              type: 0,
              word: 'Fiori App',
-             bitindex: 16,
-             bitSentenceAnd: 16,
+             bitindex: 32,
+             bitSentenceAnd: 32,
              wordType: 'F',
              _ranking: 0.95,
              lowercaseword: 'fiori app' } } },
@@ -1532,8 +1555,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
     rule:
      { category: 'domain',
        matchedString: 'FioriBOM',
-       bitindex: 2,
-       bitSentenceAnd: 2,
+       bitindex: 4,
+       bitSentenceAnd: 4,
        wordType: 'D',
        word: 'fiori',
        type: 0,
@@ -1547,8 +1570,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
              matchedString: 'FioriBOM',
              type: 0,
              word: 'fiori bom',
-             bitindex: 2,
-             bitSentenceAnd: 2,
+             bitindex: 4,
+             bitSentenceAnd: 4,
              wordType: 'D',
              _ranking: 0.95,
              lowercaseword: 'fiori bom' } } },
@@ -1559,8 +1582,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
     rule:
      { category: 'domain',
        matchedString: 'FioriBOM',
-       bitindex: 16,
-       bitSentenceAnd: 16,
+       bitindex: 32,
+       bitSentenceAnd: 32,
        wordType: 'F',
        word: 'fiori',
        type: 0,
@@ -1574,8 +1597,8 @@ exports.testCategorizeAWordWithOffest = function (test) {
              matchedString: 'FioriBOM',
              type: 0,
              word: 'fiori bom',
-             bitindex: 16,
-             bitSentenceAnd: 16,
+             bitindex: 32,
+             bitSentenceAnd: 32,
              wordType: 'F',
              _ranking: 0.95,
              lowercaseword: 'fiori bom' } } },
@@ -1638,21 +1661,6 @@ exports.testCategorizeAWordWithOffsetCloseBoth = function (test) {
        type: 0,
        word: 'ApplicationComponent',
        lowercaseword: 'applicationcomponent',
-       bitindex: 2,
-       wordType: 'C',
-       bitSentenceAnd: 2,
-       _ranking: 0.95 },
-    matchedString: 'ApplicationComponent',
-    category: 'category',
-    _ranking: 0.9405,
-    levenmatch: 0.99 },
-  { string: 'ApplicaitonComponent',
-    rule:
-     { category: 'category',
-       matchedString: 'ApplicationComponent',
-       type: 0,
-       word: 'ApplicationComponent',
-       lowercaseword: 'applicationcomponent',
        bitindex: 4,
        wordType: 'C',
        bitSentenceAnd: 4,
@@ -1667,8 +1675,23 @@ exports.testCategorizeAWordWithOffsetCloseBoth = function (test) {
        matchedString: 'ApplicationComponent',
        type: 0,
        word: 'ApplicationComponent',
-       bitindex: 16,
-       bitSentenceAnd: 16,
+       lowercaseword: 'applicationcomponent',
+       bitindex: 8,
+       wordType: 'C',
+       bitSentenceAnd: 8,
+       _ranking: 0.95 },
+    matchedString: 'ApplicationComponent',
+    category: 'category',
+    _ranking: 0.9405,
+    levenmatch: 0.99 },
+  { string: 'ApplicaitonComponent',
+    rule:
+     { category: 'category',
+       matchedString: 'ApplicationComponent',
+       type: 0,
+       word: 'ApplicationComponent',
+       bitindex: 32,
+       bitSentenceAnd: 32,
        exactOnly: false,
        wordType: 'F',
        _ranking: 0.95,

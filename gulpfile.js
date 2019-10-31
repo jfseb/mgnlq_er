@@ -5,6 +5,9 @@ var gulp = require('gulp');
 var ts = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 
+
+var sourcemaproot = '/projects/nodejs/botbuilder/mgnlq_er/';
+
 /**
  * Directory containing generated sources which still contain
  * JSDOC etc.
@@ -13,8 +16,8 @@ var srcDir = 'src';
 var testDir = 'test';
 
 gulp.task('watch', function () {
-  gulp.watch([srcDir + '/**/*.js', testDir + '/**/*.js', srcDir + '/**/*.tsx', srcDir + '/**/*.ts', 'gulpfile.js'],
-    ['tsc', 'eslint']);
+  return gulp.watch([srcDir + '/**/*.js', testDir + '/**/*.js', srcDir + '/**/*.tsx', srcDir + '/**/*.ts', 'gulpfile.js'],
+    gulp.series('tsc', 'eslint'));
 });
 
 /**
@@ -32,17 +35,17 @@ gulp.task('tsc', function () {
 
   return tsResult.js
     .pipe(sourcemaps.write('.', {
-      /*  sourceRoot : function(file) {
-          file.sourceMap.sources[0] = '/projects/nodejs/botbuilder/abot_stringdist/src/' + file.sourceMap.sources[0];
-          //console.log('here is************* file' + JSON.stringify(file, undefined, 2));
-          return 'ABC';
-        },
-        mapSources: function(src) {
-          return '/projects/nodejs/botbuilder/mgnlq_er/' + src;
-        }
-    */
-    }
+      sourceRoot: function (file) {
+        file.sourceMap.sources[0] = sourcemaproot + 'src/' + file.sourceMap.sources[0];
+        // console.log('here is************* file' + JSON.stringify(file, undefined, 2))
+        return 'ABC';
+      },
+      mapSources: function (src) {
+        //console.log('here we remap' + src);
+        return /* sourcemaproot +*/ src;
+      }}
     )) // ,  { sourceRoot: './' } ))
+    // Now the sourcemaps are added to the .js file
     // Now the sourcemaps are added to the .js file
     .pipe(gulp.dest('js'));
 });

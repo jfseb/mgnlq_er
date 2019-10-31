@@ -246,7 +246,7 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
                 //if(oRule.lowercaseword === "cosmos") {
                 //  console.log("here ranking " + levenmatch + " " + oRule.lowercaseword + " " + lcString);
                 //}
-                if (levenmatch >= Algol.Cutoff_WordMatch) {
+                if (levenmatch >= Algol.Cutoff_WordMatch) { // levenCutoff) {
                     addCntRec(cntRec, "calcDistanceOk", 1);
                     var rec = {
                         string: string,
@@ -302,7 +302,7 @@ function checkOneRuleWithOffset(string, lcString, exact, res, oRule, cntRec) {
                 //if(oRule.lowercaseword === "cosmos") {
                 //  console.log("here ranking " + levenmatch + " " + oRule.lowercaseword + " " + lcString);
                 //}
-                if (levenmatch >= Algol.Cutoff_WordMatch) {
+                if (levenmatch >= Algol.Cutoff_WordMatch) { // levenCutoff) {
                     //console.log("found rec");
                     addCntRec(cntRec, "calcDistanceOk", 1);
                     var rec = {
@@ -902,10 +902,10 @@ function expandMatchArr(deep) {
         var vecs = [[]];
         var nvecs = [];
         var rvec = [];
-        for (var k = 0; k < line[i].length; ++k) {
+        for (var k = 0; k < line[i].length; ++k) { // wordgroup k
             //vecs is the vector of all so far seen variants up to k wgs.
             var nextBase = [];
-            for (var l = 0; l < line[i][k].length; ++l) {
+            for (var l = 0; l < line[i][k].length; ++l) { // for each variant
                 //debuglog("vecs now" + JSON.stringify(vecs));
                 nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
                 //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -1074,6 +1074,8 @@ function augmentContext1(context, oRules, options) {
                 return matchWord(oRule, context, options);
             case mgnlq_model_1.IFModel.EnumRuleType.REGEXP:
                 return matchRegExp(oRule, context, options);
+            //   case "Extraction":
+            //     return matchExtraction(oRule,context);
         }
         return undefined;
     }).filter(function (ores) {

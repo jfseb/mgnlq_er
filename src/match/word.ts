@@ -21,11 +21,14 @@
 // import * as utils from '../utils/utils';
 
 import * as IMatch from './iferbase';
+import { IFModel } from 'mgnlq_model';
 
 export const Category = {
   CAT_CATEGORY :  "category",
   CAT_DOMAIN :  "domain",
+  CAT_OPERATOR : "operator",
   CAT_FILLER : "filler",
+  CAT_NUMBER : "number",
   CAT_TOOL : "tool",
   _aCatFillers : ["filler"],
   isDomain : function(sCategory : string )  : boolean{
@@ -59,6 +62,7 @@ export const WordType = {
   CAT_CATEGORY :  "category",
   CAT_DOMAIN :  "domain",
   CAT_FILLER : "filler",
+  CAT_OPERATOR: "operator",
   CAT_TOOL : "tool",
   _aCatFillers : ["filler"],
   isDomain : function(sCategory : string )  : boolean{
@@ -69,5 +73,24 @@ export const WordType = {
   },
   isFiller: function(sCategory : string) : boolean {
     return Category._aCatFillers.indexOf(sCategory) >= 0;
+  },
+  fromCategoryString: function(sCategory : string) : string
+  {
+    if( sCategory == Category.CAT_CATEGORY )
+      return IFModel.WORDTYPE.CATEGORY;
+    if( sCategory == Category.CAT_OPERATOR )
+      return IFModel.WORDTYPE.OPERATOR;
+    if( sCategory == Category.CAT_FILLER )
+      return IFModel.WORDTYPE.FILLER;
+    if( sCategory == Category.CAT_NUMBER )
+    {
+      console.log("This is N? " + IFModel.WORDTYPE.NUMERICARG);
+      return "N";
+    }
+    if( sCategory == Category.CAT_DOMAIN )
+      return IFModel.WORDTYPE.DOMAIN;
+    if( sCategory == Category.CAT_TOOL )
+      return IFModel.WORDTYPE.TOOL;
+    return undefined;
   }
 }

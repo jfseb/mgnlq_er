@@ -205,7 +205,7 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
     var res = [[]];
     // var nvecs = [];
     var rvec = [];
-    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
+    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) { // wordg index k
         //vecs is the vector of all so far seen variants up to k length.
         var nextBase = [];
         //independent of existence of matches on level k, we retain all vectors which are covered by a span
@@ -222,7 +222,7 @@ function expandTokenMatchesToSentences(tokens, tokenMatches) {
             result.errors.push(ERError.makeError_NO_KNOWN_WORD(tokenIndex, tokens));
             //}
         }
-        for (var l = 0; l < lenMatches; ++l) {
+        for (var l = 0; l < lenMatches; ++l) { // for each variant present at index k
             //debuglog("vecs now" + JSON.stringify(vecs));
             var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
             //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -273,8 +273,8 @@ function isSuccessorOperator(res, tokenIndex) {
         return false;
     }
     if (res[res.length - 1].rule.wordType === 'O') {
-        //debuglog(` assumuning op at ${tokenIndex} ` + JSON.stringify(res, undefined, 2));
-        return true;
+        if (mgnlq_model_2.IFModel.aAnySuccessorOperatorNames.indexOf(res[res.length - 1].rule.word) >= 0)
+            return true;
     }
     return false;
 }
@@ -307,7 +307,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
     var res = [[]];
     // var nvecs = [];
     var rvec = [];
-    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) {
+    for (var tokenIndex = 0; tokenIndex < tokenMatches.length; ++tokenIndex) { // wordg index k
         //vecs is the vector of all so far seen variants up to tokenIndex length.
         var nextBase = [];
         // independent of existence of matches on level k, we retain all vectors which are covered by a span
@@ -337,7 +337,7 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
             result.errors.push(ERError.makeError_NO_KNOWN_WORD(tokenIndex, tokens));
             //}
         }
-        for (var l = 0; l < lenMatches; ++l) {
+        for (var l = 0; l < lenMatches; ++l) { // for each variant present at index k
             //debuglog("vecs now" + JSON.stringify(vecs));
             var nvecs = []; //vecs.slice(); // copy the vec[i] base vector;
             //debuglog("vecs copied now" + JSON.stringify(nvecs));
@@ -373,10 +373,11 @@ function expandTokenMatchesToSentences2(tokens, tokenMatches) {
     return result;
 }
 exports.expandTokenMatchesToSentences2 = expandTokenMatchesToSentences2;
-function processString(query, rules, words) {
+function processString(query, rules, words, operators) {
     words = words || {};
+    operators = operators || {};
     //if(!process.env.ABOT_NO_TEST1) {
-    return processString2(query, rules, words);
+    return processString2(query, rules, words, operators);
 }
 exports.processString = processString;
 /*
@@ -493,6 +494,47 @@ function isSameCategoryAndHigherMatch(sentence, idxmap) {
     return false;
 }
 exports.isSameCategoryAndHigherMatch = isSameCategoryAndHigherMatch;
+function get_ith_arg(onepos, oppos, sentence, index) {
+    // 1 ->  0  -1;           1            2         -2
+    // 2  -> 1   1;           2            3         -1
+    var pos = onepos - 1;
+    if (pos <= oppos)
+        pos = -1;
+    pos -= oppos;
+    var idx = pos + index;
+    return sentence[idx];
+}
+function isBadOperatorArgs(sentence, operators) {
+    if (isNullOrEmptyDictionary(operators))
+        return false;
+    return !sentence.every(function (word, index) {
+        if ((word.rule && word.rule.wordType) != mgnlq_model_2.IFModel.WORDTYPE.OPERATOR)
+            return true;
+        var op = operators[word.rule.matchedString];
+        if (!op)
+            return true;
+        var operatorpos = op.operatorpos || 0;
+        if (!op.arity)
+            return true;
+        for (var i = 1; i <= op.arity; ++i) {
+            var ith_arg = get_ith_arg(i, operatorpos, sentence, index);
+            if (!ith_arg)
+                return false;
+            var argtype = op.argcategory[i - 1];
+            var argtypex = argtype.map(function (x) { return Word.WordType.fromCategoryString(x); });
+            console.log("comparing" + argtype + " arg.rule.category" + ith_arg.rule.category);
+            console.log("comparing" + JSON.stringify(argtypex) + " arg.ategory " + ith_arg.category);
+            console.log("comparing" + JSON.stringify(argtypex) + " rule.wordtype " + ith_arg.rule.wordType);
+            if (argtypex.indexOf(ith_arg.rule.wordType) < 0) {
+                console.log("discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify(argtypex) + " was " + ith_arg.rule.wordType);
+                debuglog(function () { return "discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify(argtypex) + " was " + ith_arg.rule.wordType; });
+                return false;
+            }
+        }
+        return true;
+    });
+}
+exports.isBadOperatorArgs = isBadOperatorArgs;
 /* Return true if the identical *target word* is expressed by different source words
 * (within the same domain and the same wordtype)
 *
@@ -604,7 +646,7 @@ function isDistinctInterpretationForSameOLD(sentence) {
     var mp = {};
     var res = sentence.every(function (word, index) {
         var seen = mp[word.string];
-        if (!seen) {
+        if (!seen) { // exact match
             /*if( word.string.length > 3 && word.string.charAt(word.string.length - 1).toLowerCase() == 's')
             {
       
@@ -649,6 +691,32 @@ function filterNonSameInterpretations(aSentences) {
     return res;
 }
 exports.filterNonSameInterpretations = filterNonSameInterpretations;
+function isNullOrEmptyDictionary(obj) {
+    return (obj === undefined) || (Object.keys(obj).length === 0);
+}
+function filterBadOperatorArgs(aSentences, operators) {
+    if (isNullOrEmptyDictionary(operators))
+        return aSentences;
+    var discardIndex = [];
+    var res = Object.assign({}, aSentences);
+    res.sentences = aSentences.sentences.filter(function (sentence, index) {
+        if (isBadOperatorArgs(sentence, operators)) {
+            discardIndex.push(index);
+            return false;
+        }
+        return true;
+    });
+    if (discardIndex.length) {
+        res.errors = aSentences.errors.filter(function (error, index) {
+            if (discardIndex.indexOf(index) >= 0) {
+                return false;
+            }
+            return true;
+        });
+    }
+    return res;
+}
+exports.filterBadOperatorArgs = filterBadOperatorArgs;
 function filterReverseNonSameInterpretations(aSentences) {
     var discardIndex = [];
     var res = Object.assign({}, aSentences);
@@ -670,7 +738,7 @@ function filterReverseNonSameInterpretations(aSentences) {
     return res;
 }
 exports.filterReverseNonSameInterpretations = filterReverseNonSameInterpretations;
-function processString2(query, rules, words) {
+function processString2(query, rules, words, operators) {
     words = words || {};
     var tokenStruct = tokenizeString(query, rules, words);
     debuglog(function () { return "tokenized:\n" + tokenStruct.categorizedWords.map(function (s) { return Sentence.simplifyStringsWithBitIndex(s).join("\n"); }).join("\n"); });
@@ -680,7 +748,8 @@ function processString2(query, rules, words) {
     debuglog(function () { return "after expand " + aSentences.sentences.map(function (oSentence) {
         return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
     }).join("\n"); });
-    var aSentences = filterNonSameInterpretations(aSentences);
+    aSentences = filterBadOperatorArgs(aSentences, operators);
+    aSentences = filterNonSameInterpretations(aSentences);
     aSentences = filterReverseNonSameInterpretations(aSentences);
     aSentences.sentences = WordMatch.reinForce(aSentences.sentences);
     debuglogV(function () { return "after reinforce\n" + aSentences.sentences.map(function (oSentence) {

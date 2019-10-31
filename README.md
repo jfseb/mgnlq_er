@@ -38,6 +38,20 @@ sentences are further pruned by removing: sentences containing Words containing 
                                           sentences containing Words containing distinct strings which are mapped on the same entity ( if a better match exists )
 
 
+
+# Test data
+
+the tests run against recorded data in E:\projects\nodejs\botbuilder\mgnlq_testmodel_replay\mgrecrep\data\807d3ce983c2f3....
+
+This data can be recorded by setting
+
+
+
+SET MGNQL_MODEL_NO_FILECACHE=1
+
+
+
+
 0.0.4 -> single result in checkOneRule
 
 

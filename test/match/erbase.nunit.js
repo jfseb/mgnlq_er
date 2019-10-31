@@ -237,9 +237,9 @@ function simplifySentence(res) {
 
 
 var getRules2 = getRules;
-var getRulesX = getRules;
+//var getRulesX = getRules;
 
-var theModel = undefined;
+//dvar theModel = undefined;
 
 
 /*
@@ -269,20 +269,22 @@ exports.testTokenizeStringElNames = function (test) {
     //console.log(theModel.mRules);
     var res = Erbase.tokenizeString('elament names b', rules, words);
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
-    test.deepEqual(simplifyStringsWithBitIndex(res.categorizedWords), [
-      [],
-      ['names=>element name/category C8',
-        'names=>element name/category F16',
-        'names=>element name/category C32'],
-      ['b=>B/element symbol F8']
-    ], ' correct result ');
+    test.deepEqual(simplifyStringsWithBitIndex(res.categorizedWords), [[],
+    ['names=>element name/category C16',
+      'names=>element name/category F32',
+      'names=>element name/category C64',
+      'names=>sender/category C2',
+      'names=>sender/category F32'],
+    ['b=>B/element symbol F16']], ' correct result ');
     test.done();
     releaseRules(mongoose);
   });
 };
 
-exports.testTokenizeStringElNamesAlpha = function (test) {
 
+
+
+exports.testTokenizeStringElNamesAlpha = function (test) {
 
   getRules().then((args) => {
     var [rules, mongoose] = args;
@@ -302,8 +304,7 @@ exports.testTokenizeStringElNamesAlpha = function (test) {
 
 function canonicSort(arrofarr) {
   var res = [];
-  for( var idx in arrofarr)
-  {
+  for (var idx in arrofarr) {
     arrofarr[idx].sort();
   }
   return arrofarr;
@@ -319,31 +320,29 @@ exports.testTokenizeTCodeGRM3 = function (test) {
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log(JSON.stringify(res));
     test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
-      [['Application Component=>ApplicationComponent/category/2 C2',
-        'Application Component=>ApplicationComponent/category/2 C4',
-        'Application Component=>ApplicationComponent/category/2 F16'],
-      ['Component=>ApplicationComponent/category C2',
-        'Component=>ApplicationComponent/category C4',
-        'Component=>ApplicationComponent/category F16'],
-      ['fiori intent=>fiori intent/category/2 C2',
-        'fiori intent=>fiori intent/category/2 C4',
-        'fiori intent=>fiori intent/category/2 F16'],
-      ['intent=>fiori intent/category C2',
-        'intent=>fiori intent/category C4',
-        'intent=>fiori intent/category F16'],
-      ['Backendcatalog=>BackendCatalogId/category C4',
-        'Backendcatalog=>BackendCatalogId/category F16'],
-      ['for=>for/filler I256'],
-      ['GRM3=>GRM3/TransactionCode F2',
-        'GRM3=>GRM3/TransactionCode F4',
-        'GRM3=>GRM3/appId F2']]
+      [['Application Component=>ApplicationComponent/category/2 C4',
+        'Application Component=>ApplicationComponent/category/2 C8',
+        'Application Component=>ApplicationComponent/category/2 F32'],
+      ['Component=>ApplicationComponent/category C4',
+        'Component=>ApplicationComponent/category C8',
+        'Component=>ApplicationComponent/category F32'],
+      ['fiori intent=>fiori intent/category/2 C4',
+        'fiori intent=>fiori intent/category/2 C8',
+        'fiori intent=>fiori intent/category/2 F32'],
+      ['intent=>fiori intent/category C4',
+        'intent=>fiori intent/category C8',
+        'intent=>fiori intent/category F32'],
+      ['Backendcatalog=>BackendCatalogId/category C8',
+        'Backendcatalog=>BackendCatalogId/category F32'],
+      ['for=>for/filler I512'],
+      ['GRM3=>GRM3/TransactionCode F4',
+        'GRM3=>GRM3/TransactionCode F8',
+        'GRM3=>GRM3/appId F4']]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
   });
 };
-
-
 
 exports.testTokenizeInteger = function (test) {
   debugger;
@@ -356,14 +355,13 @@ exports.testTokenizeInteger = function (test) {
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log(JSON.stringify(res));
     test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
-    [ [ '1=>1/element number F8', '1=>1/number N256' ],
-    [ '1234=>1234/number N256' ] ]
+      [['1=>1/element number F16', '1=>1/number N512'],
+      ['1234=>1234/number N512']]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
   });
 };
-
 
 exports.testTokenizeIntegers = function (test) {
   getRules().then((args) => {
@@ -373,25 +371,25 @@ exports.testTokenizeIntegers = function (test) {
     var res = Erbase.tokenizeString(' Application Component, 1, 2, and, or, 3, 4, 10, 12, 15, 203, 2034, one, two.', rules, words);
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(canonicSort(simplifyStringsWithBitIndex(res.categorizedWords)),
-    [ [ 'Application Component=>ApplicationComponent/category/2 C2',
-    'Application Component=>ApplicationComponent/category/2 C4',
-    'Application Component=>ApplicationComponent/category/2 F16' ],
-  [ 'Component=>ApplicationComponent/category C2',
-    'Component=>ApplicationComponent/category C4',
-    'Component=>ApplicationComponent/category F16' ],
-  [ '1=>1/element number F8', '1=>1/number N256' ],
-  [ '2=>2/element number F8', '2=>2/number N256' ],
-  [ 'and=>and/filler I256' ],
-  [],
-  [ '3=>3/element number F8', '3=>3/number N256' ],
-  [ '4=>4/element number F8', '4=>4/number N256' ],
-  [ '10=>10/element number F8', '10=>10/number N256' ],
-  [ '12=>12/element number F8', '12=>12/number N256' ],
-  [ '15=>15/element number F8', '15=>15/number N256' ],
-  [ '203=>203/number N256' ],
-  [ '2034=>2034/number N256' ],
-  [ 'one=>one/number N256' ],
-  [ 'two=>two/number N256' ] ]
+      [['Application Component=>ApplicationComponent/category/2 C4',
+        'Application Component=>ApplicationComponent/category/2 C8',
+        'Application Component=>ApplicationComponent/category/2 F32'],
+      ['Component=>ApplicationComponent/category C4',
+        'Component=>ApplicationComponent/category C8',
+        'Component=>ApplicationComponent/category F32'],
+      ['1=>1/element number F16', '1=>1/number N512'],
+      ['2=>2/element number F16', '2=>2/number N512'],
+      ['and=>and/filler I512'],
+      [],
+      ['3=>3/element number F16', '3=>3/number N512'],
+      ['4=>4/element number F16', '4=>4/number N512'],
+      ['10=>10/element number F16', '10=>10/number N512'],
+      ['12=>12/element number F16', '12=>12/number N512'],
+      ['15=>15/element number F16', '15=>15/number N512'],
+      ['203=>203/number N512'],
+      ['2034=>2034/number N512'],
+      ['one=>one/number N512'],
+      ['two=>two/number N512']]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -408,12 +406,12 @@ exports.testTokenizeCategoriesIn = function (test) {
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log(JSON.stringify(res));
     test.deepEqual(simplifyStringsWithBitIndex(res.categorizedWords),
-      [['categories=>category/category C16',
-        'categories=>category/category F16',
-        'categories=>category/category C128'],
-      ['in=>In/element symbol F8', 'in=>in/filler I256'],
-      ['Fiori BOM=>FioriBOM/domain/2 D2',
-        'Fiori BOM=>FioriBOM/domain/2 F16'],
+      [['categories=>category/category C32',
+        'categories=>category/category F32',
+        'categories=>category/category C256'],
+      ['in=>In/element symbol F16', 'in=>in/filler I512'],
+      ['Fiori BOM=>FioriBOM/domain/2 D4',
+        'Fiori BOM=>FioriBOM/domain/2 F32'],
       []]
       , ' correct result ');
     test.done();
@@ -432,12 +430,12 @@ exports.testProcessStringCatDomainSynonym = function (test) {
     var res = Erbase.processString(s, rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-[ [ 'categories=>category/category C16',
-    'in=>in/filler I256',
-    'Fiori BOM=>FioriBOM/domain/2 F16' ],
-  [ 'categories=>category/category F16',
-    'in=>in/filler I256',
-    'Fiori BOM=>FioriBOM/domain/2 F16' ] ],
+      [['categories=>category/category C32',
+        'in=>in/filler I512',
+        'Fiori BOM=>FioriBOM/domain/2 F32'],
+      ['categories=>category/category F32',
+        'in=>in/filler I512',
+        'Fiori BOM=>FioriBOM/domain/2 F32']],
       ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -460,33 +458,33 @@ exports.testProcessStringAmbigQuery = function (test) {
     debuglog('res > ' + JSON.stringify(restok, undefined, 2));
     //console.log(JSON.stringify(res));
     test.deepEqual(simplifyStringsWithBitIndex(restok.categorizedWords),
-     [ [ 'ApplicationComponent=>ApplicationComponent/category C2',
-    'ApplicationComponent=>ApplicationComponent/category C4',
-    'ApplicationComponent=>ApplicationComponent/category F16' ],
-  [ 'devclass=>devclass/category C4',
-    'devclass=>devclass/category F16',
-    'devclass=>devclass/category C64' ],
-  [ 'BackEndCatalogId=>BackendCatalogId/category C4',
-    'BackEndCatalogId=>BackendCatalogId/category F16' ],
-  [ 'for=>for/filler I256' ],
-  [ 'TransactionCode=>TransactionCode/category C2',
-    'TransactionCode=>TransactionCode/category C4',
-    'TransactionCode=>TransactionCode/category F16' ],
-  [ 'S_ALR_87012394=>S_ALR_87012394/appId F2',
-    'S_ALR_87012394=>S_ALR_87012394/TransactionCode F2',
-    'S_ALR_87012394=>S_ALR_87012394/TransactionCode F4' ] ]
+      [['ApplicationComponent=>ApplicationComponent/category C2',
+        'ApplicationComponent=>ApplicationComponent/category C4',
+        'ApplicationComponent=>ApplicationComponent/category F16'],
+      ['devclass=>devclass/category C4',
+        'devclass=>devclass/category F16',
+        'devclass=>devclass/category C64'],
+      ['BackEndCatalogId=>BackendCatalogId/category C4',
+        'BackEndCatalogId=>BackendCatalogId/category F16'],
+      ['for=>for/filler I256'],
+      ['TransactionCode=>TransactionCode/category C2',
+        'TransactionCode=>TransactionCode/category C4',
+        'TransactionCode=>TransactionCode/category F16'],
+      ['S_ALR_87012394=>S_ALR_87012394/appId F2',
+        'S_ALR_87012394=>S_ALR_87012394/TransactionCode F2',
+        'S_ALR_87012394=>S_ALR_87012394/TransactionCode F4']]
       , ' correct result ');
 
 
     var res = Erbase.processString(s, rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-    [ [ 'ApplicationComponent=>ApplicationComponent/category C4',
-    'devclass=>devclass/category C4',
-    'BackEndCatalogId=>BackendCatalogId/category C4',
-    'for=>for/filler I256',
-    'TransactionCode=>TransactionCode/category C4',
-    'S_ALR_87012394=>S_ALR_87012394/TransactionCode F4' ] ],
+      [['ApplicationComponent=>ApplicationComponent/category C8',
+        'devclass=>devclass/category C8',
+        'BackEndCatalogId=>BackendCatalogId/category C8',
+        'for=>for/filler I512',
+        'TransactionCode=>TransactionCode/category C8',
+        'S_ALR_87012394=>S_ALR_87012394/TransactionCode F8']],
       ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -505,8 +503,8 @@ exports.testProcessStringAmbigQuery = function (test) {
 
     var res = Erbase.processString(s, rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
-     Sentence.dumpNiceArr(res.sentences);
-// test a number of Sentence
+    Sentence.dumpNiceArr(res.sentences);
+    // test a number of Sentence
     res.sentences.forEach(s => {
       Sentence.dumpNice(s);
       Sentence.dumpNiceRuled(s);
@@ -515,12 +513,12 @@ exports.testProcessStringAmbigQuery = function (test) {
     });
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-    [ [ 'ApplicationComponent=>ApplicationComponent/category C4',
-    'devclass=>devclass/category C4',
-    'BackEndCatalogId=>BackendCatalogId/category C4',
-    'for=>for/filler I256',
-    'TransactionCode=>TransactionCode/category C4',
-    'S_ALR_87012394=>S_ALR_87012394/TransactionCode F4' ] ],
+      [['ApplicationComponent=>ApplicationComponent/category C8',
+        'devclass=>devclass/category C8',
+        'BackEndCatalogId=>BackendCatalogId/category C8',
+        'for=>for/filler I512',
+        'TransactionCode=>TransactionCode/category C8',
+        'S_ALR_87012394=>S_ALR_87012394/TransactionCode F8']],
       ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -539,11 +537,8 @@ exports.testProcessStringelementNames = function (test) {
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [  /* [ 'elaement names=>element name/category/2 C64',
-    'nickel=>nickel/element name C32' ], */
-        ['elaement names=>element name/category/2 C8',
-          'nickel=>nickel/element name F8']
-      ]
+      [['elaement names=>element name/category/2 C16',
+        'nickel=>nickel/element name F16']]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -563,10 +558,10 @@ exports.testProcessStringCatQuery1 = function (test) {
     var res = Erbase.processString(s, rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['ApplicationComponent=>ApplicationComponent/category C2',
-        'with=>with/filler I256',
-        'ApplicaitonComponent=>ApplicationComponent/category C2',
-        'W0052=>W0052/appId F2']],
+      [['ApplicationComponent=>ApplicationComponent/category C4',
+        'with=>with/filler I512',
+        'ApplicaitonComponent=>ApplicationComponent/category C4',
+        'W0052=>W0052/appId F4']],
       ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -586,16 +581,16 @@ exports.testProcessStringCatQuery = function (test) {
     var res = Erbase.processString(s, rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['SemanticObject=>SemanticObject/category C2',
-        'SemanticAction=>SemanticAction/category C2',
-        'BSPName=>BSPName/category C2',
-        'ApplicationComponent=>ApplicationComponent/category C2',
-        'with=>with/filler I256',
-        'ApplicaitonComponent=>ApplicationComponent/category C2',
-        'CO-FIO=>CO-FIO/ApplicationComponent F2',
-        'appId=>appId/category C2',
-        'W0052=>W0052/appId F2',
-        'SAP_TC_FIN_CO_COMMON=>SAP_TC_FIN_CO_COMMON/TechnicalCatalog F2']],
+      [['SemanticObject=>SemanticObject/category C4',
+        'SemanticAction=>SemanticAction/category C4',
+        'BSPName=>BSPName/category C4',
+        'ApplicationComponent=>ApplicationComponent/category C4',
+        'with=>with/filler I512',
+        'ApplicaitonComponent=>ApplicationComponent/category C4',
+        'CO-FIO=>CO-FIO/ApplicationComponent F4',
+        'appId=>appId/category C4',
+        'W0052=>W0052/appId F4',
+        'SAP_TC_FIN_CO_COMMON=>SAP_TC_FIN_CO_COMMON/TechnicalCatalog F4']],
       ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -626,8 +621,8 @@ exports.testTokenizeStringStartingWith = function (test) {
           lowercaseword: 'starting with',
           type: 0,
           matchedString: 'starting with',
-          bitindex: 256,
-          bitSentenceAnd: 255,
+          bitindex: 512,
+          bitSentenceAnd: 511,
           wordType: 'O',
           _ranking: 0.9
         },
@@ -653,23 +648,23 @@ exports.testProcessStringStartingWith = function (test) {
 
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['SemanticObject=>SemanticObject/category C2',
-        'SemanticAction=>SemanticAction/category C2',
-        'with=>with/filler I256',
-        'SemanticObject=>SemanticObject/category C2',
-        'starting with=>starting with/operator/2 O256',
-        'Sup=>Sup/any A4096'],
-      ['SemanticObject=>SemanticObject/category C4',
+      [['SemanticObject=>SemanticObject/category C4',
         'SemanticAction=>SemanticAction/category C4',
-        'with=>with/filler I256',
+        'with=>with/filler I512',
         'SemanticObject=>SemanticObject/category C4',
-        'starting with=>starting with/operator/2 O256',
+        'starting with=>starting with/operator/2 O512',
         'Sup=>Sup/any A4096'],
-      ['SemanticObject=>SemanticObject/category F16',
-        'SemanticAction=>SemanticAction/category F16',
-        'with=>with/filler I256',
-        'SemanticObject=>SemanticObject/category F16',
-        'starting with=>starting with/operator/2 O256',
+      ['SemanticObject=>SemanticObject/category C8',
+        'SemanticAction=>SemanticAction/category C8',
+        'with=>with/filler I512',
+        'SemanticObject=>SemanticObject/category C8',
+        'starting with=>starting with/operator/2 O512',
+        'Sup=>Sup/any A4096'],
+      ['SemanticObject=>SemanticObject/category F32',
+        'SemanticAction=>SemanticAction/category F32',
+        'with=>with/filler I512',
+        'SemanticObject=>SemanticObject/category F32',
+        'starting with=>starting with/operator/2 O512',
         'Sup=>Sup/any A4096']]
       , ' correct result ');
     test.deepEqual(res.sentences[0][5],
@@ -701,6 +696,470 @@ exports.testProcessStringStartingWith = function (test) {
 };
 
 
+exports.testWithMoreThan3 = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+
+    var res = Erbase.tokenizeString('12 with more than standort', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(res.categorizedWords[0],
+      [{
+        string: '12',
+        matchedString: '12',
+        category: 'element number',
+        rule:
+        {
+          category: 'element number',
+          matchedString: '12',
+          type: 0,
+          word: '12',
+          bitindex: 16,
+          bitSentenceAnd: 16,
+          exactOnly: false,
+          wordType: 'F',
+          _ranking: 0.95,
+          lowercaseword: '12'
+        },
+        _ranking: 0.95
+      },
+      {
+        string: '12',
+        matchedString: '12',
+        rule:
+        {
+          category: 'number',
+          matchedString: 'one',
+          type: 1,
+          regexp: {},
+          matchIndex: 0,
+          word: '<number>',
+          bitindex: 512,
+          wordType: 'N',
+          bitSentenceAnd: 511,
+          _ranking: 0.95
+        },
+        category: 'number',
+        _ranking: 0.95
+      }]
+      , ' correct result ');
+
+    test.deepEqual(res.categorizedWords[1],
+      [{
+        string: 'with',
+        matchedString: 'with',
+        category: 'filler',
+        rule:
+        {
+          category: 'filler',
+          type: 0,
+          word: 'with',
+          lowercaseword: 'with',
+          matchedString: 'with',
+          exactOnly: true,
+          bitindex: 512,
+          bitSentenceAnd: 511,
+          wordType: 'I',
+          _ranking: 0.9
+        },
+        _ranking: 0.9
+      },
+      {
+        string: 'with more than',
+        matchedString: 'with more than',
+        category: 'operator',
+        rule:
+        {
+          category: 'operator',
+          word: 'with more than',
+          lowercaseword: 'with more than',
+          type: 0,
+          matchedString: 'with more than',
+          bitindex: 512,
+          bitSentenceAnd: 511,
+          wordType: 'O',
+          _ranking: 0.9
+        },
+        _ranking: 0.9,
+        span: 3
+      }]
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[2],
+      []
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[3],
+      []
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[4],
+      [{
+        string: 'standort',
+        matchedString: 'standort',
+        category: 'category',
+        rule:
+        {
+          category: 'category',
+          matchedString: 'standort',
+          type: 0,
+          word: 'standort',
+          lowercaseword: 'standort',
+          bitindex: 2,
+          wordType: 'C',
+          bitSentenceAnd: 2,
+          _ranking: 0.95
+        },
+        _ranking: 0.95
+      },
+      {
+        string: 'standort',
+        matchedString: 'standort',
+        category: 'category',
+        rule:
+        {
+          category: 'category',
+          matchedString: 'standort',
+          type: 0,
+          word: 'standort',
+          bitindex: 32,
+          bitSentenceAnd: 32,
+          exactOnly: false,
+          wordType: 'F',
+          _ranking: 0.95,
+          lowercaseword: 'standort'
+        },
+        _ranking: 0.95
+      }]
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[5],
+      undefined
+      , ' correct result ');
+
+    var res = Erbase.processString('12 with more than standort', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['12=>12/number N512',
+        'with more than=>with more than/operator/3 O512',
+        'standort=>standort/category C2'],
+      ['12=>12/number N512',
+        'with more than=>with more than/operator/3 O512',
+        'standort=>standort/category F32']]
+      , ' correct distinct result 2 ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+exports.testWithMoreThan0o2X = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  getRules().then((args) => {
+    var [rules, model] = args;
+    var res = Erbase.processString('12 with more than 13 standort', rules, words, model.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['12=>12/number N512',
+        'with more than=>with more than/operator/3 O512',
+        '13=>13/number N512',
+        'standort=>standort/category C2']]
+      , ' correct distinct result 2 ');
+
+    test.done();
+    releaseRules(model);
+  });
+};
+
+exports.testWithMoreThanoNC = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  getRules().then((args) => {
+    var [rules, model] = args;
+    var res = Erbase.processString('with more than 13 standort', rules, words, model.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['with more than=>with more than/operator/3 O512',
+        '13=>13/number N512',
+        'standort=>standort/category C2']]
+      , ' correct distinct result 2 ');
+
+    test.done();
+    releaseRules(model);
+  });
+};
+
+exports.testWithMoreThanoNF = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+  getRules().then((args) => {
+    var [rules, model] = args;
+    var res = Erbase.processString('with more than 13 berlin', rules, words, model.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      []
+      , ' correct distinct result 2 ');
+
+    test.done();
+    releaseRules(model);
+  });
+};
+
+
+exports.testWithMoreThan0o2 = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+
+    var res = Erbase.tokenizeString('12 with more than 13 standort', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(res.categorizedWords[0],
+      [{
+        string: '12',
+        matchedString: '12',
+        category: 'element number',
+        rule:
+        {
+          category: 'element number',
+          matchedString: '12',
+          type: 0,
+          word: '12',
+          bitindex: 16,
+          bitSentenceAnd: 16,
+          exactOnly: false,
+          wordType: 'F',
+          _ranking: 0.95,
+          lowercaseword: '12'
+        },
+        _ranking: 0.95
+      },
+      {
+        string: '12',
+        matchedString: '12',
+        rule:
+        {
+          category: 'number',
+          matchedString: 'one',
+          type: 1,
+          regexp: {},
+          matchIndex: 0,
+          word: '<number>',
+          bitindex: 512,
+          wordType: 'N',
+          bitSentenceAnd: 511,
+          _ranking: 0.95
+        },
+        category: 'number',
+        _ranking: 0.95
+      }]
+      , ' correct result ');
+
+    test.deepEqual(res.categorizedWords[1],
+      [{
+        string: 'with',
+        matchedString: 'with',
+        category: 'filler',
+        rule:
+        {
+          category: 'filler',
+          type: 0,
+          word: 'with',
+          lowercaseword: 'with',
+          matchedString: 'with',
+          exactOnly: true,
+          bitindex: 512,
+          bitSentenceAnd: 511,
+          wordType: 'I',
+          _ranking: 0.9
+        },
+        _ranking: 0.9
+      },
+      {
+        string: 'with more than',
+        matchedString: 'with more than',
+        category: 'operator',
+        rule:
+        {
+          category: 'operator',
+          word: 'with more than',
+          lowercaseword: 'with more than',
+          type: 0,
+          matchedString: 'with more than',
+          bitindex: 512,
+          bitSentenceAnd: 511,
+          wordType: 'O',
+          _ranking: 0.9
+        },
+        _ranking: 0.9,
+        span: 3
+      }]
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[2],
+      []
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[3],
+      []
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[4],
+      [{
+        string: '13',
+        matchedString: '13',
+        category: 'element number',
+        rule:
+        {
+          category: 'element number',
+          matchedString: '13',
+          type: 0,
+          word: '13',
+          bitindex: 16,
+          bitSentenceAnd: 16,
+          exactOnly: false,
+          wordType: 'F',
+          _ranking: 0.95,
+          lowercaseword: '13'
+        },
+        _ranking: 0.95
+      },
+      {
+        string: '13',
+        matchedString: '13',
+        rule:
+        {
+          category: 'number',
+          matchedString: 'one',
+          type: 1,
+          regexp: {},
+          matchIndex: 0,
+          word: '<number>',
+          bitindex: 512,
+          wordType: 'N',
+          bitSentenceAnd: 511,
+          _ranking: 0.95
+        },
+        category: 'number',
+        _ranking: 0.95
+      }]
+      , ' correct result ');
+    test.deepEqual(res.categorizedWords[5],
+      [{
+        string: 'standort',
+        matchedString: 'standort',
+        category: 'category',
+        rule:
+        {
+          category: 'category',
+          matchedString: 'standort',
+          type: 0,
+          word: 'standort',
+          lowercaseword: 'standort',
+          bitindex: 2,
+          wordType: 'C',
+          bitSentenceAnd: 2,
+          _ranking: 0.95
+        },
+        _ranking: 0.95
+      },
+      {
+        string: 'standort',
+        matchedString: 'standort',
+        category: 'category',
+        rule:
+        {
+          category: 'category',
+          matchedString: 'standort',
+          type: 0,
+          word: 'standort',
+          bitindex: 32,
+          bitSentenceAnd: 32,
+          exactOnly: false,
+          wordType: 'F',
+          _ranking: 0.95,
+          lowercaseword: 'standort'
+        },
+        _ranking: 0.95
+      }]
+      , ' correct result ');
+
+    var res = Erbase.processString('12 with more than 13 standort', rules, words, mongoose.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['12=>12/number N512',
+        'with more than=>with more than/operator/3 O512',
+        '13=>13/number N512',
+        'standort=>standort/category C2']]
+      , ' correct distinct result 2 ');
+
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
+
+exports.testWithMoreThan = function (test) {
+  // debuglog(JSON.stringify(ifr, undefined, 2))
+  //console.log(theModel.mRules);
+
+
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
+
+    var res = Erbase.tokenizeString('sender, standort with standort more than 12 standorten', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(res.categorizedWords[4],
+      []
+      , ' correct result ');
+
+    var res = Erbase.processString('sender, standort with standort more than 12 standorten', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      []
+      , ' correct distinct result ');
+
+    var res = Erbase.processString('sender, standort with standort 12 with more than 14 standrt', rules, words, mongoose.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+    [ [ 'sender=>sender/category C2',
+    'standort=>standort/category C2',
+    'with=>with/filler I512',
+    'standort=>standort/category C2',
+    '12=>12/number N512',
+    'with more than=>with more than/operator/3 O512',
+    '14=>14/number N512',
+    'standrt=>standort/category C2' ] ]
+      , ' correct distinct result 2 ');
+
+
+
+
+    var res = Erbase.processString('sender, standort with standort 12 with more than standrt', rules, words, mongoose.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      []
+      , ' correct distinct result 2 ');
+    var res = Erbase.processString('sender, standort with standort 12 with more than standort', rules, words, mongoose.operators);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      []
+      , ' correct distinct result 2 ');
+    test.done();
+    releaseRules(mongoose);
+  });
+};
+
 
 exports.testProcessStringSameDistinct = function (test) {
   // debuglog(JSON.stringify(ifr, undefined, 2))
@@ -714,30 +1173,30 @@ exports.testProcessStringSameDistinct = function (test) {
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['element name=>element name/category/2 C8',
-        'with=>with/filler I256',
-        'element name=>element name/category/2 C8',
-        'starting with=>starting with/operator/2 O256',
+      [['element name=>element name/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
         'ABC=>ABC/any A4096'],
-      ['element name=>element name/category/2 F16',
-        'with=>with/filler I256',
-        'element name=>element name/category/2 F16',
-        'starting with=>starting with/operator/2 O256',
+      ['element name=>element name/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
         'ABC=>ABC/any A4096'],
-      ['element name=>element name/category/2 C32',
-        'with=>with/filler I256',
-        'element name=>element name/category/2 C32',
-        'starting with=>starting with/operator/2 O256',
+      ['element name=>element name/category/2 C64',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 C64',
+        'starting with=>starting with/operator/2 O512',
         'ABC=>ABC/any A4096'],
-      ['element name=>element number/category/2 C8',
-        'with=>with/filler I256',
-        'element name=>element number/category/2 C8',
-        'starting with=>starting with/operator/2 O256',
+      ['element name=>element number/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
         'ABC=>ABC/any A4096'],
-      ['element name=>element number/category/2 F16',
-        'with=>with/filler I256',
-        'element name=>element number/category/2 F16',
-        'starting with=>starting with/operator/2 O256',
+      ['element name=>element number/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
         'ABC=>ABC/any A4096']]
       , ' correct distinct result ');
 
@@ -759,34 +1218,34 @@ exports.testProcessStringAsymmetric = function (test) {
     var res = Erbase.processString('element name, element number, element weight with element name starting with ABC', rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-    [ [ 'element name=>element name/category/2 C8',
-    'element number=>element number/category/2 C8',
-    'element weight=>atomic weight/category/2 C8',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element name=>element name/category/2 F16',
-    'element number=>element number/category/2 F16',
-    'element weight=>atomic weight/category/2 F16',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 F16',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element name=>element number/category/2 C8',
-    'element number=>element name/category/2 C8',
-    'element weight=>atomic weight/category/2 C8',
-    'with=>with/filler I256',
-    'element name=>element number/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element name=>element number/category/2 F16',
-    'element number=>element name/category/2 F16',
-    'element weight=>atomic weight/category/2 F16',
-    'with=>with/filler I256',
-    'element name=>element number/category/2 F16',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ] ]
+      [['element name=>element name/category/2 C16',
+        'element number=>element number/category/2 C16',
+        'element weight=>atomic weight/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element name=>element name/category/2 F32',
+        'element number=>element number/category/2 F32',
+        'element weight=>atomic weight/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element name=>element number/category/2 C16',
+        'element number=>element name/category/2 C16',
+        'element weight=>atomic weight/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element name=>element number/category/2 F32',
+        'element number=>element name/category/2 F32',
+        'element weight=>atomic weight/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096']]
       , ' correct distinct result ');
 
     test.done();
@@ -797,7 +1256,7 @@ exports.testProcessStringAsymmetric = function (test) {
 
 
 exports.testProcessStringAlmostSameWordDistinct = function (test) {
- /* test that "element names" and "element name" are suitably close to allow to eliminate distinct interpretations */
+  /* test that "element names" and "element name" are suitably close to allow to eliminate distinct interpretations */
 
   getRules().then((args) => {
     var [rules, mongoose] = args;
@@ -805,24 +1264,24 @@ exports.testProcessStringAlmostSameWordDistinct = function (test) {
     var res = Erbase.processString('element names, element number, element weight, \"element name\" with element name starting with \"ABC\"', rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-    [ [ 'element names=>element name/category/2 C8',
-    'element number=>element number/category/2 C8',
-    'element weight=>atomic weight/category/2 C8',
-    'element name=>element name/category C8',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element names=>element name/category/2 F16',
-    'element number=>element number/category/2 F16',
-    'element weight=>atomic weight/category/2 F16',
-    'element name=>element name/category F16',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 F16',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ] ]
+      [['element names=>element name/category/2 C16',
+        'element number=>element number/category/2 C16',
+        'element weight=>atomic weight/category/2 C16',
+        'element name=>element name/category C16',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element names=>element name/category/2 F32',
+        'element number=>element number/category/2 F32',
+        'element weight=>atomic weight/category/2 F32',
+        'element name=>element name/category F32',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096']]
 
-    , ' correct distinct result ');
+      , ' correct distinct result ');
 
     test.done();
     releaseRules(mongoose);
@@ -834,46 +1293,45 @@ exports.testProcessStringAlmostSameWordDistinct = function (test) {
 exports.testProcessStringAlmostSameWordDistinctReverse = function (test) {
   /* test that "element names" and "element name" are suitably close to allow to eliminate distinct interpretations */
 
-   getRules().then((args) => {
-     var [rules, mongoose] = args;
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
 
-     var res = Erbase.processString('element names, element number, element weight, element name with element name starting with \"ABC\"', rules, words);
-     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
-     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-
-     [ [ 'element names=>element name/category/2 C8',
-    'element number=>element number/category/2 C8',
-    'element weight=>atomic weight/category/2 C8',
-    'element name=>element name/category/2 C8',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element names=>element name/category/2 F16',
-    'element number=>element number/category/2 F16',
-    'element weight=>atomic weight/category/2 F16',
-    'element name=>element name/category/2 F16',
-    'with=>with/filler I256',
-    'element name=>element name/category/2 F16',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element names=>element number/category/2 C8',
-    'element number=>element name/category/2 C8',        // TODO: eliminate this here or later ( after querying?) as an alternative is present which is equivalent
-    'element weight=>atomic weight/category/2 C8',
-    'element name=>element number/category/2 C8',
-    'with=>with/filler I256',
-    'element name=>element number/category/2 C8',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ],
-  [ 'element names=>element number/category/2 F16',
-    'element number=>element name/category/2 F16',
-    'element weight=>atomic weight/category/2 F16',
-    'element name=>element number/category/2 F16',
-    'with=>with/filler I256',
-    'element name=>element number/category/2 F16',
-    'starting with=>starting with/operator/2 O256',
-    'ABC=>ABC/any A4096' ] ]
-  , ' correct distinct result ');
+    var res = Erbase.processString('element names, element number, element weight, element name with element name starting with \"ABC\"', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['element names=>element name/category/2 C16',
+        'element number=>element number/category/2 C16',
+        'element weight=>atomic weight/category/2 C16',
+        'element name=>element name/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element names=>element name/category/2 F32',
+        'element number=>element number/category/2 F32',
+        'element weight=>atomic weight/category/2 F32',
+        'element name=>element name/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element name/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element names=>element number/category/2 C16',
+        'element number=>element name/category/2 C16',   // TODO: eliminate this here or later ( after querying?) as an alternative is present which is equivalent
+        'element weight=>atomic weight/category/2 C16',
+        'element name=>element number/category/2 C16',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element names=>element number/category/2 F32',
+        'element number=>element name/category/2 F32',
+        'element weight=>atomic weight/category/2 F32',
+        'element name=>element number/category/2 F32',
+        'with=>with/filler I512',
+        'element name=>element number/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096']]
+      , ' correct distinct result ');
 
     test.done();
     releaseRules(mongoose);
@@ -886,25 +1344,25 @@ exports.testProcessStringAlmostSameWordDistinctReverse = function (test) {
 exports.testProcessStringDistinctSourceWordsOK = function (test) {
   /* test that "aliases" are not removed if they are the *best* choice */
 
-   getRules().then((args) => {
-     var [rules, mongoose] = args;
+  getRules().then((args) => {
+    var [rules, mongoose] = args;
 
-     var res = Erbase.processString('element weight, atomic weight with element weight starting with \"ABC\"', rules, words);
-     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
-     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-     [ [ 'element weight=>atomic weight/category/2 C8',
-     'atomic weight=>atomic weight/category/2 C8',
-     'with=>with/filler I256',
-     'element weight=>atomic weight/category/2 C8',
-     'starting with=>starting with/operator/2 O256',
-     'ABC=>ABC/any A4096' ],
-   [ 'element weight=>atomic weight/category/2 F16',
-     'atomic weight=>atomic weight/category/2 F16',
-     'with=>with/filler I256',
-     'element weight=>atomic weight/category/2 F16',
-     'starting with=>starting with/operator/2 O256',
-     'ABC=>ABC/any A4096' ] ]
-  , ' correct distinct result ');
+    var res = Erbase.processString('element weight, atomic weight with element weight starting with \"ABC\"', rules, words);
+    debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
+    test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
+      [['element weight=>atomic weight/category/2 C16',
+        'atomic weight=>atomic weight/category/2 C16',
+        'with=>with/filler I512',
+        'element weight=>atomic weight/category/2 C16',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096'],
+      ['element weight=>atomic weight/category/2 F32',
+        'atomic weight=>atomic weight/category/2 F32',
+        'with=>with/filler I512',
+        'element weight=>atomic weight/category/2 F32',
+        'starting with=>starting with/operator/2 O512',
+        'ABC=>ABC/any A4096']]
+      , ' correct distinct result ');
 
     test.done();
     releaseRules(mongoose);
@@ -1173,8 +1631,8 @@ exports.testProcessStringSemantic = function (test) {
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log('res > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['Semantic OBjects=>SemanticObject/category/2 C2'],
-      ['Semantic OBjects=>SemanticObject/category/2 F16']
+      [['Semantic OBjects=>SemanticObject/category/2 C4'],
+      ['Semantic OBjects=>SemanticObject/category/2 F32']
       ], ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -1229,13 +1687,12 @@ exports.testProcessStringODataOK = function (test) {
 
     //console.log('res > ' + JSON.stringify(res, undefined, 2));
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['OData Services=>PrimaryODataServiceName/category/2 C2',
-        'for=>for/filler I256',
-        'fiori intent=>fiori intent/category/2 C2'],
-      ['OData Services=>PrimaryODataServiceName/category/2 F16',
-        'for=>for/filler I256',
-        'fiori intent=>fiori intent/category/2 F16']
-      ]
+      [['OData Services=>PrimaryODataServiceName/category/2 C4',
+        'for=>for/filler I512',
+        'fiori intent=>fiori intent/category/2 C4'],
+      ['OData Services=>PrimaryODataServiceName/category/2 F32',
+        'for=>for/filler I512',
+        'fiori intent=>fiori intent/category/2 F32']]
       , ' correct result ');
     test.done();
     releaseRules(mongoose);
@@ -1278,15 +1735,15 @@ exports.testprocessStringModel2 = function (test) {
     var res = Erbase.processString('element number 10', rules, {});
     debuglog('res > ' + JSON.stringify(res, undefined, 2));
     //console.log('res > ' + JSON.stringify(res, undefined, 2));
-    test.deepEqual(simplifyStrings(res.sentences), [ [ 'element number=>element number/category/2',
-    '10=>10/element number' ],
-  [ 'element number=>element number/category/2', '10=>10/number' ],
-  [ 'element number=>element number/category/2', '10=>10/number' ],
-  [ 'element number=>element name/category/2',
-    '10=>10/element number' ],
-  [ 'element number=>element name/category/2', '10=>10/number' ],
-  [ 'element number=>element name/category/2', '10=>10/number' ],
-  [ 'element number=>element name/category/2', '10=>10/number' ] ], ' correct result ');
+    test.deepEqual(simplifyStrings(res.sentences), [['element number=>element number/category/2',
+      '10=>10/element number'],
+    ['element number=>element number/category/2', '10=>10/number'],
+    ['element number=>element number/category/2', '10=>10/number'],
+    ['element number=>element name/category/2',
+      '10=>10/element number'],
+    ['element number=>element name/category/2', '10=>10/number'],
+    ['element number=>element name/category/2', '10=>10/number'],
+    ['element number=>element name/category/2', '10=>10/number']], ' correct result ');
     test.done();
     releaseRules(mongoose);
   });

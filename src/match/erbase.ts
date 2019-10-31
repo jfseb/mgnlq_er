@@ -46,6 +46,7 @@ import * as Word from './word';
 
 import * as Algol from './algol';
 import { AssertionError } from 'assert';
+import { IOperator } from 'mgnlq_model/js/match/ifmatch';
 
 
 //import * as Match from './match';
@@ -332,8 +333,8 @@ export function isSuccessorOperator(res : any, tokenIndex : number) : boolean {
     return false;
   }
   if(res[res.length-1].rule.wordType === 'O') {
-    //debuglog(` assumuning op at ${tokenIndex} ` + JSON.stringify(res, undefined, 2));
-    return true;
+    if ( IMatch.aAnySuccessorOperatorNames.indexOf(res[res.length-1].rule.word) >= 0)
+      return true;
   }
   return false;
 }
@@ -432,11 +433,13 @@ export function expandTokenMatchesToSentences2(tokens: string[], tokenMatches: A
 
 
 export function processString(query: string, rules: IFModel.SplitRules,
- words: { [key: string]: Array<IMatch.ICategorizedString> }
+ words: { [key: string]: Array<IMatch.ICategorizedString> },
+ operators : { [key:string] : IOperator }
 ):  IMatch.IProcessedSentences {
   words = words || {};
+  operators = operators || {};
   //if(!process.env.ABOT_NO_TEST1) {
-  return processString2(query, rules, words);
+  return processString2(query, rules, words, operators);
 }
   /*
   var tokenStruct = tokenizeString(query, rules, words);
@@ -560,6 +563,53 @@ export function isSameCategoryAndHigherMatch(sentence : IMatch.ISentence,  idxma
     return true;
   }
   return false;
+}
+
+function get_ith_arg( onepos : number, oppos : number, sentence: IMatch.ISentence, index : number ) : IMatch.IWord
+{ ///         oppos=0     oppos=-1     oppos=-2   oppos=1
+  // 1 ->  0  -1;           1            2         -2
+  // 2  -> 1   1;           2            3         -1
+  var pos = onepos - 1;
+  if ( pos <= oppos )
+     pos = -1;
+  pos -= oppos;
+  var idx = pos + index;
+  return sentence[idx];
+}
+
+export function isBadOperatorArgs(sentence : IMatch.ISentence, operators: IMatch.IOperators ) : boolean {
+  if (isNullOrEmptyDictionary(operators))
+    return false;
+  return !sentence.every( (word, index) => {
+    if(  (word.rule && word.rule.wordType) != IMatch.WORDTYPE.OPERATOR )
+      return true;
+    var op =operators[word.rule.matchedString];
+    if( !op)
+      return true;
+    var operatorpos = op.operatorpos || 0;
+    if (!op.arity)
+      return true;
+    for( var i = 1; i <= op.arity; ++i)
+    {
+      var ith_arg = get_ith_arg( i, operatorpos , sentence, index );
+      if (!ith_arg)
+        return false;
+      var argtype = op.argcategory[ i - 1];
+      var argtypex = argtype.map(  (x) => Word.WordType.fromCategoryString( x ));
+      console.log( "comparing" + argtype + " arg.rule.category" + ith_arg.rule.category );
+      console.log( "comparing" + JSON.stringify(argtypex) + " arg.ategory " + ith_arg.category );
+      console.log( "comparing" + JSON.stringify(argtypex) + " rule.wordtype " + ith_arg.rule.wordType );
+      if ( argtypex.indexOf( ith_arg.rule.wordType ) < 0 )
+      {
+        console.log( "discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify( argtypex )+ " was "  + ith_arg.rule.wordType);
+
+        debuglog( ()=> { return "discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify( argtypex )+ " was "  + ith_arg.rule.wordType;});
+
+        return false;
+      }
+    }
+    return true;
+  });
 }
 
 
@@ -726,6 +776,34 @@ export function filterNonSameInterpretations(aSentences :  IMatch.IProcessedSent
   return res;
 }
 
+function isNullOrEmptyDictionary(obj) {
+  return (obj === undefined) || (Object.keys(obj).length === 0);
+}
+
+
+export function filterBadOperatorArgs(aSentences :  IMatch.IProcessedSentences, operators : IFModel.IOperators ) : IMatch.IProcessedSentences {
+  if ( isNullOrEmptyDictionary(operators) )
+    return aSentences;
+  var discardIndex = [] as Array<number>;
+  var res = (Object as any).assign( {}, aSentences );
+  res.sentences = aSentences.sentences.filter((sentence,index) => {
+    if(isBadOperatorArgs(sentence, operators)) {
+      discardIndex.push(index);
+      return false;
+    }
+    return true;
+  });
+  if(discardIndex.length) {
+    res.errors = aSentences.errors.filter( (error,index) => {
+      if(discardIndex.indexOf(index) >= 0) {
+        return false;
+      }
+      return true;
+    });
+  }
+  return res;
+}
+
 
 export function filterReverseNonSameInterpretations(aSentences :  IMatch.IProcessedSentences ) : IMatch.IProcessedSentences {
   var discardIndex = [] as Array<number>;
@@ -749,7 +827,8 @@ export function filterReverseNonSameInterpretations(aSentences :  IMatch.IProces
 }
 
 export function processString2(query: string, rules: IFModel.SplitRules,
- words: { [key: string]: Array<IMatch.ICategorizedString> }
+ words: { [key: string]: Array<IMatch.ICategorizedString> },
+ operators : { [key:string] : IOperator }
 ):  IMatch.IProcessedSentences {
   words = words || {};
   var tokenStruct = tokenizeString(query, rules, words);
@@ -761,7 +840,8 @@ export function processString2(query: string, rules: IFModel.SplitRules,
   debuglog(() => "after expand " + aSentences.sentences.map(function (oSentence) {
     return Sentence.rankingProduct(oSentence) + ":\n" + Sentence.dumpNiceBitIndexed(oSentence); //JSON.stringify(oSentence);
     }).join("\n"));
-  var aSentences = filterNonSameInterpretations(aSentences);
+  aSentences = filterBadOperatorArgs(aSentences, operators)
+  aSentences = filterNonSameInterpretations(aSentences);
 
   aSentences = filterReverseNonSameInterpretations(aSentences);
 
