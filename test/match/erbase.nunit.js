@@ -697,10 +697,6 @@ exports.testProcessStringStartingWith = function (test) {
 
 
 exports.testWithMoreThan3 = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  //console.log(theModel.mRules);
-
-
   getRules().then((args) => {
     var [rules, mongoose] = args;
 
@@ -748,47 +744,38 @@ exports.testWithMoreThan3 = function (test) {
       , ' correct result ');
 
     test.deepEqual(res.categorizedWords[1],
-      [{
-        string: 'with',
-        matchedString: 'with',
-        category: 'filler',
-        rule:
-        {
-          category: 'filler',
-          type: 0,
-          word: 'with',
-          lowercaseword: 'with',
-          matchedString: 'with',
-          exactOnly: true,
-          bitindex: 512,
-          bitSentenceAnd: 511,
-          wordType: 'I',
-          _ranking: 0.9
-        },
-        _ranking: 0.9
-      },
-      {
-        string: 'with more than',
-        matchedString: 'with more than',
-        category: 'operator',
-        rule:
-        {
-          category: 'operator',
-          word: 'with more than',
-          lowercaseword: 'with more than',
-          type: 0,
-          matchedString: 'with more than',
-          bitindex: 512,
-          bitSentenceAnd: 511,
-          wordType: 'O',
-          _ranking: 0.9
-        },
-        _ranking: 0.9,
-        span: 3
-      }]
+      [ { string: 'with',
+      matchedString: 'with',
+      category: 'filler',
+      rule:
+       { category: 'filler',
+         type: 0,
+         word: 'with',
+         lowercaseword: 'with',
+         matchedString: 'with',
+         exactOnly: true,
+         bitindex: 512,
+         bitSentenceAnd: 511,
+         wordType: 'I',
+         _ranking: 0.9 },
+      _ranking: 0.9 } ]
       , ' correct result ');
     test.deepEqual(res.categorizedWords[2],
-      []
+      [ { string: 'more than',
+      matchedString: 'more than',
+      category: 'operator',
+      rule:
+       { category: 'operator',
+         word: 'more than',
+         lowercaseword: 'more than',
+         type: 0,
+         matchedString: 'more than',
+         bitindex: 512,
+         bitSentenceAnd: 511,
+         wordType: 'O',
+         _ranking: 0.9 },
+      _ranking: 0.9,
+      span: 2 } ]
       , ' correct result ');
     test.deepEqual(res.categorizedWords[3],
       []
@@ -840,12 +827,14 @@ exports.testWithMoreThan3 = function (test) {
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['12=>12/number N512',
-        'with more than=>with more than/operator/3 O512',
-        'standort=>standort/category C2'],
-      ['12=>12/number N512',
-        'with more than=>with more than/operator/3 O512',
-        'standort=>standort/category F32']]
+    [ [ '12=>12/number N512',
+    'with=>with/filler I512',
+    'more than=>more than/operator/2 O512',
+    'standort=>standort/category C2' ],
+  [ '12=>12/number N512',
+    'with=>with/filler I512',
+    'more than=>more than/operator/2 O512',
+    'standort=>standort/category F32' ] ]
       , ' correct distinct result 2 ');
 
     test.done();
@@ -855,18 +844,17 @@ exports.testWithMoreThan3 = function (test) {
 
 
 exports.testWithMoreThan0o2X = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  //console.log(theModel.mRules);
   getRules().then((args) => {
     var [rules, model] = args;
-    var res = Erbase.processString('12 with more than 13 standort', rules, words, model.operators);
+    var res = Erbase.processString('12 with less than 13 standort', rules, words, model.operators);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['12=>12/number N512',
-        'with more than=>with more than/operator/3 O512',
-        '13=>13/number N512',
-        'standort=>standort/category C2']]
+    [ [ '12=>12/number N512',
+    'with=>with/filler I512',
+    'less than=>less than/operator/2 O512',
+    '13=>13/number N512',
+    'standort=>standort/category C2' ] ]
       , ' correct distinct result 2 ');
 
     test.done();
@@ -875,17 +863,19 @@ exports.testWithMoreThan0o2X = function (test) {
 };
 
 exports.testWithMoreThanoNC = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  //console.log(theModel.mRules);
   getRules().then((args) => {
     var [rules, model] = args;
-    var res = Erbase.processString('with more than 13 standort', rules, words, model.operators);
+    var res = Erbase.processString('which has more than 13 standort', rules, words, model.operators);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
+    // TODO ambiguity between  "which has more than" and "whish has less than"
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['with more than=>with more than/operator/3 O512',
-        '13=>13/number N512',
-        'standort=>standort/category C2']]
+    [ [ 'which has more than=>more than/operator/4 O512',
+    '13=>13/number N512',
+    'standort=>standort/category C2' ],
+  [ 'which has more than=>less than/operator/4 O512',
+    '13=>13/number N512',
+    'standort=>standort/category C2' ] ]
       , ' correct distinct result 2 ');
 
     test.done();
@@ -894,8 +884,6 @@ exports.testWithMoreThanoNC = function (test) {
 };
 
 exports.testWithMoreThanoNF = function (test) {
-  // debuglog(JSON.stringify(ifr, undefined, 2))
-  //console.log(theModel.mRules);
   getRules().then((args) => {
     var [rules, model] = args;
     var res = Erbase.processString('with more than 13 berlin', rules, words, model.operators);
@@ -963,47 +951,38 @@ exports.testWithMoreThan0o2 = function (test) {
       , ' correct result ');
 
     test.deepEqual(res.categorizedWords[1],
-      [{
-        string: 'with',
-        matchedString: 'with',
-        category: 'filler',
-        rule:
-        {
-          category: 'filler',
-          type: 0,
-          word: 'with',
-          lowercaseword: 'with',
-          matchedString: 'with',
-          exactOnly: true,
-          bitindex: 512,
-          bitSentenceAnd: 511,
-          wordType: 'I',
-          _ranking: 0.9
-        },
-        _ranking: 0.9
-      },
-      {
-        string: 'with more than',
-        matchedString: 'with more than',
-        category: 'operator',
-        rule:
-        {
-          category: 'operator',
-          word: 'with more than',
-          lowercaseword: 'with more than',
-          type: 0,
-          matchedString: 'with more than',
-          bitindex: 512,
-          bitSentenceAnd: 511,
-          wordType: 'O',
-          _ranking: 0.9
-        },
-        _ranking: 0.9,
-        span: 3
-      }]
+      [ { string: 'with',
+      matchedString: 'with',
+      category: 'filler',
+      rule:
+       { category: 'filler',
+         type: 0,
+         word: 'with',
+         lowercaseword: 'with',
+         matchedString: 'with',
+         exactOnly: true,
+         bitindex: 512,
+         bitSentenceAnd: 511,
+         wordType: 'I',
+         _ranking: 0.9 },
+      _ranking: 0.9 } ]
       , ' correct result ');
     test.deepEqual(res.categorizedWords[2],
-      []
+      [ { string: 'more than',
+      matchedString: 'more than',
+      category: 'operator',
+      rule:
+       { category: 'operator',
+         word: 'more than',
+         lowercaseword: 'more than',
+         type: 0,
+         matchedString: 'more than',
+         bitindex: 512,
+         bitSentenceAnd: 511,
+         wordType: 'O',
+         _ranking: 0.9 },
+      _ranking: 0.9,
+      span: 2 } ]
       , ' correct result ');
     test.deepEqual(res.categorizedWords[3],
       []
@@ -1092,10 +1071,11 @@ exports.testWithMoreThan0o2 = function (test) {
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      [['12=>12/number N512',
-        'with more than=>with more than/operator/3 O512',
-        '13=>13/number N512',
-        'standort=>standort/category C2']]
+    [ [ '12=>12/number N512',
+    'with=>with/filler I512',
+    'more than=>more than/operator/2 O512',
+    '13=>13/number N512',
+    'standort=>standort/category C2' ] ]
       , ' correct distinct result 2 ');
 
     test.done();
@@ -1116,14 +1096,41 @@ exports.testWithMoreThan = function (test) {
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(res.categorizedWords[4],
-      []
+      [ { string: 'more than',
+      matchedString: 'more than',
+      category: 'operator',
+      rule:
+       { category: 'operator',
+         word: 'more than',
+         lowercaseword: 'more than',
+         type: 0,
+         matchedString: 'more than',
+         bitindex: 512,
+         bitSentenceAnd: 511,
+         wordType: 'O',
+         _ranking: 0.9 },
+      _ranking: 0.9,
+      span: 2 } ]
       , ' correct result ');
 
     var res = Erbase.processString('sender, standort with standort more than 12 standorten', rules, words);
     debuglog('\nres > ' + JSON.stringify(res, undefined, 2));
 
     test.deepEqual(simplifyStringsWithBitIndex(res.sentences),
-      []
+    [ [ 'sender=>sender/category C2',
+    'standort=>standort/category C2',
+    'with=>with/filler I512',
+    'standort=>standort/category C2',
+    'more than=>more than/operator/2 O512',
+    '12=>12/number N512',
+    'standorten=>standort/category C2' ],
+  [ 'sender=>sender/category F32',
+    'standort=>standort/category F32',
+    'with=>with/filler I512',
+    'standort=>standort/category F32',
+    'more than=>more than/operator/2 O512',
+    '12=>12/number N512',
+    'standorten=>standort/category F32' ] ]
       , ' correct distinct result ');
 
     var res = Erbase.processString('sender, standort with standort 12 with more than 14 standrt', rules, words, mongoose.operators);
@@ -1135,7 +1142,8 @@ exports.testWithMoreThan = function (test) {
     'with=>with/filler I512',
     'standort=>standort/category C2',
     '12=>12/number N512',
-    'with more than=>with more than/operator/3 O512',
+    'with=>with/filler I512',
+    'more than=>more than/operator/2 O512',
     '14=>14/number N512',
     'standrt=>standort/category C2' ] ]
       , ' correct distinct result 2 ');

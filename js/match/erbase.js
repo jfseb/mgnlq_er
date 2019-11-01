@@ -522,9 +522,6 @@ function isBadOperatorArgs(sentence, operators) {
                 return false;
             var argtype = op.argcategory[i - 1];
             var argtypex = argtype.map(function (x) { return Word.WordType.fromCategoryString(x); });
-            console.log("comparing" + argtype + " arg.rule.category" + ith_arg.rule.category);
-            console.log("comparing" + JSON.stringify(argtypex) + " arg.ategory " + ith_arg.category);
-            console.log("comparing" + JSON.stringify(argtypex) + " rule.wordtype " + ith_arg.rule.wordType);
             if (argtypex.indexOf(ith_arg.rule.wordType) < 0) {
                 console.log("discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify(argtypex) + " was " + ith_arg.rule.wordType);
                 debuglog(function () { return "discarding due to arg " + op.operator + " arg #" + i + " expected" + JSON.stringify(argtypex) + " was " + ith_arg.rule.wordType; });
