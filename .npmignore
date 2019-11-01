@@ -21,6 +21,9 @@ abot_erbase-*
 gen2
 *.txt
 
+mgrecord2
+mgrecrep2/*
+
 gen_cov
 js_cov
 info.lcov

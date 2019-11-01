@@ -315,7 +315,7 @@ oRule : IFModel.mRule, cntRec? : ICntRec ) {
         break;
       case IFModel.EnumRuleType.REGEXP: {
         analyseRegexp( res, oRule, string );
-        break; // throw Error('REGEXP not supported');
+        break;
       }
       //break;
       default:

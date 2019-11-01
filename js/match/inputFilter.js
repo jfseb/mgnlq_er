@@ -262,7 +262,7 @@ function checkOneRule(string, lcString, exact, res, oRule, cntRec) {
             break;
         case mgnlq_model_1.IFModel.EnumRuleType.REGEXP: {
             analyseRegexp(res, oRule, string);
-            break; // throw Error('REGEXP not supported');
+            break;
         }
         //break;
         default:
